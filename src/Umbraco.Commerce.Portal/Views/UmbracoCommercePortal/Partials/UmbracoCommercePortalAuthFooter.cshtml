@@ -1,0 +1,11 @@
+@using Umbraco.Commerce.Portal.Extensions
+@inherits UmbracoViewPage
+@{
+    var termsAndConditionsPage = Model.GetPublishedContentPropertyByAlias(UmbracoCommercePortalConstants.ContentTypes.Properties.TermsAndConditionsPageAlias);
+    var privacyPolicyPage = Model.GetPublishedContentPropertyByAlias(UmbracoCommercePortalConstants.ContentTypes.Properties.PrivacyPolicyPageAlias);
+}
+
+<div class="auth__footer">
+    <a class="auth__link" href="@(termsAndConditionsPage != null ? termsAndConditionsPage.Url() : "#")">Terms of Service</a> |
+    <a class="auth__link" href="@(privacyPolicyPage != null ? privacyPolicyPage.Url() : "#")">Privacy Policy</a>
+</div>

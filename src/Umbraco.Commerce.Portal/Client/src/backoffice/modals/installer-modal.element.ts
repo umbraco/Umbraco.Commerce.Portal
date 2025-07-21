@@ -4,10 +4,10 @@ import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
 import { UcpInstallerModalSubmitValue } from './installer-modal.token';
 import { UmbInputDocumentElement } from '@umbraco-cms/backoffice/document';
 import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
-/*import { installUmbracoCommerceCheckoutAsync } from '../apis/install.api';*/
+import { installUmbracoCommercePortalAsync } from '../apis/install.api';
 import { UMB_NOTIFICATION_CONTEXT, UmbNotificationContext } from '@umbraco-cms/backoffice/notification';
 
-const ELEMENT_NAME = 'ucp-installer-config-modal';
+const ELEMENT_NAME = "ucp-installer-config-modal";
 @customElement(ELEMENT_NAME)
 export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
   implements UmbModalExtensionElement<object, UcpInstallerModalSubmitValue> {
@@ -55,41 +55,44 @@ export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
       },
     });
     try {
-      //const installationResult = await installUmbracoCommerceCheckoutAsync(this._installationRoot!);
-      //if (installationResult.success) {
-      //  this._installButton = {
-      //    ...this._installButton,
-      //    state: 'success',
-      //  };
-      //  this.#notificationContext?.peek('positive', {
-      //    data: {
-      //      headline: 'Umbraco Commerce Checkout Installed',
-      //      message: 'Umbraco Commerce Checkout successfully installed',
-      //    },
-      //  });
+      const installationResult = await installUmbracoCommercePortalAsync(this._installationRoot!);
 
-      //  this.modalContext?.submit();
-      //}
-      //else {
-      //  this._installButton = {
-      //    ...this._installButton,
-      //    state: 'failed',
-      //  };
-      //  this.#notificationContext?.peek('danger', {
-      //    data: {
-      //      headline: 'Umbraco Commerce Checkout',
-      //      message: installationResult.message ?? 'Some errors occurred during installation process. Please try again and report to the package owner.',
-      //    },
-      //  });
-      //}
+      console.log("Installation result:", installationResult);
+
+      if (installationResult.success) {
+        this._installButton = {
+          ...this._installButton,
+          state: "success",
+        };
+        this.#notificationContext?.peek("positive", {
+          data: {
+            headline: "Umbraco Commerce Portal Installed",
+            message: "Umbraco Commerce Portal successfully installed",
+          },
+        });
+
+        this.modalContext?.submit();
+      }
+      else {
+        this._installButton = {
+          ...this._installButton,
+          state: "failed",
+        };
+        this.#notificationContext?.peek("danger", {
+          data: {
+            headline: "Umbraco Commerce Portal",
+            message: installationResult.message ?? "Some errors occurred during installation process. Please try again and report to the package owner.",
+          },
+        });
+      }
     } catch (err) {
       this._installButton = {
         ...this._installButton,
-        state: 'failed',
+        state: "failed",
       };
-      this.#notificationContext?.peek('danger', {
+      this.#notificationContext?.peek("danger", {
         data: {
-          headline: 'Umbraco Commerce Checkout',
+          headline: "Umbraco Commerce Portal",
           message: JSON.stringify(err),
         },
       });

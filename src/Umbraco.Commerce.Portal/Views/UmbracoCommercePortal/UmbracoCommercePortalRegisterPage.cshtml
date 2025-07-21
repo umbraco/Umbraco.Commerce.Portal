@@ -1,0 +1,95 @@
+@using Umbraco.Commerce.Portal.Extensions;
+@using Umbraco.Commerce.Portal.Models;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@inherits UmbracoViewPage
+@{
+    Layout = "UmbracoCommercePortalAuthLayout.cshtml";
+
+    var loginPage = Model.GetLoginPage();
+
+    var registerModel = new RegisterMemberModel();
+    var confirmMemberModel = new ConfirmMemberModel();
+    var key = HttpContextAccessor?.HttpContext?.Request.Query["key"].ToString();
+    if (!string.IsNullOrEmpty(key))
+    {
+        confirmMemberModel.MemberId = Guid.Parse(key);
+    }
+}
+
+<h2 class="auth__title">Create an account</h2>
+
+@if (!string.IsNullOrEmpty(key))
+{
+    @using (Html.BeginUmbracoForm("ConfirmMember", "UmbracoCommercePortalSurface", FormMethod.Post, new { @class = "auth__form" }))
+    {
+        <input type="hidden" asp-for="@confirmMemberModel.MemberId" />
+
+        @if (TempData["ConfirmMemberSuccess"] != null)
+        {
+            <text>
+                <p class="auth__signin">
+                    <a class="auth__link" href="@(loginPage != null ? loginPage.Url() : "#")">Log in</a>
+                </p>
+            </text>
+            @await Html.PartialAsync(
+                $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalToast.cshtml",
+                             new ToastModel("success", TempData["ConfirmMemberSuccess"].ToString()))
+        }
+        else
+        {
+            <button class="auth__button" type="submit">Confirm account</button>
+        }
+    }
+}
+else
+{
+    @using (Html.BeginUmbracoForm("RegisterMember", "UmbracoCommercePortalSurface", FormMethod.Post, new { @class = "auth__form" }))
+    {
+        <div class="auth__field">
+            <label class="auth__label" asp-for="@registerModel.Email">Email address</label>
+            <input class="auth__input" type="email" asp-for="@registerModel.Email" />
+        </div>
+
+        <div class="row">
+            <div class="row__column">
+                <div class="auth__field" style="padding-right: 10px;">
+                    <label class="auth__label" asp-for="@registerModel.FirstName">Firstname</label>
+                    <input class="auth__input" type="text" asp-for="@registerModel.FirstName" />
+                </div>
+            </div>
+
+            <div class="row__column">
+                <div class="auth__field" style="padding-left: 10px;">
+                    <label class="auth__label" asp-for="@registerModel.LastName">Lastname</label>
+                    <input class="auth__input" type="text" asp-for="@registerModel.LastName" />
+                </div>
+            </div>
+        </div>
+
+        <div class="auth__field">
+            <label class="auth__label" asp-for="@registerModel.Password">Password</label>
+            <input class="auth__input" type="password" asp-for="@registerModel.Password" />
+        </div>
+
+        <div class="auth__field">
+            <label class="auth__label" asp-for="@registerModel.ConfirmPassword">Confirm Password</label>
+            <input class="auth__input" type="password" asp-for="@registerModel.ConfirmPassword" />
+        </div>
+
+        <div class="auth__field">
+            <div class="auth__error">
+                @Html.ValidationSummary()
+            </div>
+        </div>
+
+        <button class="auth__button" type="submit">Create account</button>
+
+        @if (TempData["Success"] != null)
+        {
+            @await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalToast.cshtml",
+                new ToastModel("success", TempData["Success"].ToString()))
+        }
+    }
+}
+
+@await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalSignIn.cshtml")

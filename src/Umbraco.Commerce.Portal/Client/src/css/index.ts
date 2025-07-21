@@ -1,0 +1,1 @@
+import "./ucportal-auth.css";

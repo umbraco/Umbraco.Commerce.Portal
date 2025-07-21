@@ -1,0 +1,14 @@
+@using Umbraco.Commerce.Portal.Models;
+@using Umbraco.Commerce.Web.ViewEngines;
+
+@inherits UmbracoCommerceRazorTemplateView<EmailModel>
+
+<div>
+    <h2>Confirm Account</h2>
+    <p>Hi <strong>@Model.Name</strong></p>
+    <p>Thank you for signing up.</p>
+    <p>
+        Please confirm your account using the following link:
+        <a href="@Model.Url">confirm</a>
+    </p>
+</div>

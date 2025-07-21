@@ -6,6 +6,7 @@
 		<StaticWebAssetBasePath>App_Plugins/UmbracoCommercePortal</StaticWebAssetBasePath>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <NoWarn>CA2007;CA1848;IDE0290;IDE0022;IDE0021;IDE0063;IDE0058</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,5 +19,16 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<SupportedPlatform Include="browser" />
 	</ItemGroup>
+
+  <ItemGroup>
+    <Content Include="**/*.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="wwwroot/**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 
 </Project>

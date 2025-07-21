@@ -4,7 +4,10 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/backoffice/index.ts",
+      entry: {
+        "ucportal.backoffice": "src/backoffice/index.ts",
+        "ucportal:auth": "src/css/index.ts"
+      },
       formats: ["es"],
     },
     outDir: "../wwwroot/",
