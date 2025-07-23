@@ -43,9 +43,9 @@
   margin-bottom: 15px;
 }
 
-.auth__logo img {
+  .auth__logo img {
     border-radius: 10%;
-}
+  }
 
 .auth__title {
   font-size: 22px;
@@ -92,7 +92,7 @@
 
 .auth__error {
   display: flex;
-  justify-content:center;
+  justify-content: center;
   color: #dc2626;
   font-size: 14px;
   margin-top: 5px;
@@ -139,9 +139,9 @@
   text-align: center;
 }
 
-.auth__footer .auth__link {
+  .auth__footer .auth__link {
     color: darkgray;
-}
+  }
 
 @media (max-width: 480px) {
   .auth__box {
@@ -188,7 +188,7 @@ body:has(h2.auth__title:contains("Create an account")) .auth__box {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  background-color: #111827; 
+  background-color: #111827;
   color: #fff;
   padding: 1rem 1.5rem;
   border-radius: 0.5rem;

@@ -25,6 +25,12 @@ public static class UmbracoCommercePortalConstants
             public const string PortalContainerPage = "ucpPortalContainerPage";
 
             public const string PortalAuthPage = "ucpPortalAuthPage";
+
+            public const string PortalManagementPage = "ucpPortalManagementPage";
+
+            public const string PortalMyAccountPage = "ucpPortalMyAccountPage";
+
+            public const string PortalOrderHistoryPage = "ucpPortalOrderHistoryPage";
         }
 
         public static class Guids

@@ -4,10 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   build: {
     lib: {
-      entry: {
-        "ucportal.backoffice": "src/backoffice/index.ts",
-        "ucportal:auth": "src/css/index.ts"
-      },
+      entry: "src/index.ts",
       formats: ["es"],
     },
     outDir: "../wwwroot/",
@@ -16,6 +13,7 @@ export default defineConfig({
     rollupOptions: {
       external: [/^@umbraco/],
     },
+    cssCodeSplit: false
   },
   plugins: [
     tsconfigPaths()
