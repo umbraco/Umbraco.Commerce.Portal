@@ -43,6 +43,15 @@ public static class UmbracoCommercePortalConstants
 
             private const string PortalAuthPage = "701bd4fb-892e-47ff-9007-d60fa966cef0";
             public static readonly Guid PortalAuthPageGuid = new(PortalAuthPage);
+
+            private const string PortalManagementPage = "1587fb8f-ec84-4d2b-a3b5-8842cb05506f";
+            public static readonly Guid PortalManagementPageGuid = new(PortalManagementPage);
+
+            private const string PortalMyAccountPage = "648aa4a5-3404-4076-90dc-d6ec2d7658e6";
+            public static readonly Guid PortalMyAccountPageGuid = new(PortalMyAccountPage);
+
+            private const string PortalOrderHistoryPage = "b5eb4942-cb4d-458e-bffd-91d1175af4d9";
+            public static readonly Guid PortalOrderHistoryPageGuid = new(PortalOrderHistoryPage);
         }
 
         public static class Properties

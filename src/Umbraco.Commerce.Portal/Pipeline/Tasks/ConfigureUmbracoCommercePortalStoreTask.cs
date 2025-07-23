@@ -21,44 +21,56 @@ internal class ConfigureUmbracoCommercePortalStoreTask(IUmbracoCommerceApi comme
                     args.Model.Store.Id,
                     UmbracoCommercePortalConstants.EmailTemplates.ConfirmMemberEmailTemplate.Key);
 
+                EmailTemplate? emailTemplate = null;
                 if (!confirmMemberEmailTemplateExists)
                 {
-                    await EmailTemplate.CreateAsync(
+                    emailTemplate = await EmailTemplate.CreateAsync(
                         uow,
                         args.Model.Store.Id,
                         UmbracoCommercePortalConstants.EmailTemplates.ConfirmMemberEmailTemplate.Key,
                         UmbracoCommercePortalConstants.EmailTemplates.ConfirmMemberEmailTemplate.Value);
                 }
 
-                var confirmMemberEmailTemplate = await commerceApi.GetEmailTemplateAsync(
-                        args.Model.Store.Id,
-                        UmbracoCommercePortalConstants.EmailTemplates.ConfirmMemberEmailTemplate.Key)
-                    .AsWritableAsync(uow)
+                if (emailTemplate == null)
+                {
+                    emailTemplate = await commerceApi.GetEmailTemplateAsync(
+                                        args.Model.Store.Id,
+                                        UmbracoCommercePortalConstants.EmailTemplates.ConfirmMemberEmailTemplate.Key)
+                                    .AsWritableAsync(uow);
+                }
+
+                await emailTemplate
                     .SetSubjectAsync("Confirm Member")
                     .SetSenderNameAsync("Umbraco Commerce Portal")
                     .SetSenderAddressAsync("portal@localhost")
                     .SetTemplateViewAsync(UmbracoCommercePortalConstants.EmailTemplates.ConfirmMemberEmailTemplate.Value);
 
-                await commerceApi.SaveEmailTemplateAsync(confirmMemberEmailTemplate, cancellationToken);
+                await commerceApi.SaveEmailTemplateAsync(emailTemplate, cancellationToken);
 
                 // Reset Password Email Template
                 bool resetPasswordEmailTemplateExists = await commerceApi.EmailTemplateExistsAsync(
                     args.Model.Store.Id,
                     UmbracoCommercePortalConstants.EmailTemplates.ResetPasswordEmailTemplate.Key);
 
+                EmailTemplate? resetPasswordEmailTemplate = null;
                 if (!resetPasswordEmailTemplateExists)
                 {
-                    await EmailTemplate.CreateAsync(
+                    resetPasswordEmailTemplate = await EmailTemplate.CreateAsync(
                         uow,
                         args.Model.Store.Id,
                         UmbracoCommercePortalConstants.EmailTemplates.ResetPasswordEmailTemplate.Key,
                         UmbracoCommercePortalConstants.EmailTemplates.ResetPasswordEmailTemplate.Value);
                 }
 
-                var resetPasswordEmailTemplate = await commerceApi.GetEmailTemplateAsync(
+                if (resetPasswordEmailTemplate == null)
+                {
+                    resetPasswordEmailTemplate = await commerceApi.GetEmailTemplateAsync(
                         args.Model.Store.Id,
                         UmbracoCommercePortalConstants.EmailTemplates.ResetPasswordEmailTemplate.Key)
-                    .AsWritableAsync(uow)
+                        .AsWritableAsync(uow);
+                }
+
+                await resetPasswordEmailTemplate
                     .SetSubjectAsync("Reset Password")
                     .SetSenderNameAsync("Umbraco Commerce Portal")
                     .SetSenderAddressAsync("portal@localhost")

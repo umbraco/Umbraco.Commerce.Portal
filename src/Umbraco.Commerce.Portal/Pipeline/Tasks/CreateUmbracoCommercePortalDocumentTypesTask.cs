@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -72,6 +73,63 @@ public class CreateUmbracoCommercePortalDocumentTypesTask(
             return Fail(portalAuthPageAttempt.Exception);
         }
 
+        // Portal My Account Page
+        Attempt<IContentType?> portalMyAccountPageAttempt = await AddOrUpdatePageContentTypeAsync(
+           UmbracoCommercePortalConstants.ContentTypes.Guids.PortalMyAccountPageGuid,
+           null,
+           UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage,
+           string.Format(ContentTypePageName, "My Account"),
+           "icon-vcard color-blue",
+           null,
+           portalContentTypeFolder.Key);
+        if (!portalMyAccountPageAttempt.Success)
+        {
+            logger.LogError(
+                portalMyAccountPageAttempt.Exception,
+                "Create or update portal my account page attempt status {AttemptStatus}.",
+                portalMyAccountPageAttempt.Result);
+            return Fail(portalMyAccountPageAttempt.Exception);
+        }
+
+        // Portal Order History Page
+        Attempt<IContentType?> portalOrderHistoryPageAttempt = await AddOrUpdatePageContentTypeAsync(
+          UmbracoCommercePortalConstants.ContentTypes.Guids.PortalOrderHistoryPageGuid,
+          null,
+          UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderHistoryPage,
+          string.Format(ContentTypePageName, "Order History"),
+          "icon-shopping-basket color-blue",
+          null,
+          portalContentTypeFolder.Key);
+        if (!portalOrderHistoryPageAttempt.Success)
+        {
+            logger.LogError(
+                portalOrderHistoryPageAttempt.Exception,
+                "Create or update portal my account page attempt status {AttemptStatus}.",
+                portalOrderHistoryPageAttempt.Result);
+            return Fail(portalOrderHistoryPageAttempt.Exception);
+        }
+
+        // Portal Management Page
+        Attempt<IContentType?> portalManagementPageAttempt = await AddOrUpdatePageContentTypeAsync(
+            UmbracoCommercePortalConstants.ContentTypes.Guids.PortalManagementPageGuid,
+            null,
+            UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalManagementPage,
+            string.Format(ContentTypePageName, "Management"),
+            "icon-settings color-blue",
+            [
+                new ContentTypeSort(portalMyAccountPageAttempt.Result!.Key, 1, portalMyAccountPageAttempt.Result!.Alias),
+                new ContentTypeSort(portalOrderHistoryPageAttempt.Result!.Key, 2, portalOrderHistoryPageAttempt.Result!.Alias)
+            ],
+            portalContentTypeFolder.Key);
+        if (!portalManagementPageAttempt.Success)
+        {
+            logger.LogError(
+                portalManagementPageAttempt.Exception,
+                "Create or update portal management page attempt status {AttemptStatus}.",
+                portalManagementPageAttempt.Result);
+            return Fail(portalManagementPageAttempt.Exception);
+        }
+
         // Portal Container Page
         PropertyType[] portalPageProps = [
              CreatePropertyType(await contentPickerDataType.Value, x =>
@@ -117,7 +175,10 @@ public class CreateUmbracoCommercePortalDocumentTypesTask(
             UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalContainerPage,
             string.Format(ContentTypePageName, "Portal"),
             "icon-users color-blue",
-            new[] { new ContentTypeSort(portalAuthPageAttempt.Result!.Key, 1, portalAuthPageAttempt.Result!.Alias) },
+            [
+                new ContentTypeSort(portalAuthPageAttempt.Result!.Key, 1, portalAuthPageAttempt.Result!.Alias),
+                new ContentTypeSort(portalManagementPageAttempt.Result!.Key, 2, portalManagementPageAttempt.Result!.Alias)
+            ],
             portalContentTypeFolder.Key);
         if (!portalContainerPageAttempt.Success)
         {
@@ -127,12 +188,6 @@ public class CreateUmbracoCommercePortalDocumentTypesTask(
                 portalContainerPageAttempt.Result);
             return Fail(portalContainerPageAttempt.Exception);
         }
-
-        // Portal Management Page
-
-        // Portal My Account Page
-
-        // Portal Order History Page
 
         return Ok();
     }
@@ -159,7 +214,7 @@ public class CreateUmbracoCommercePortalDocumentTypesTask(
     {
         logger.LogInformation("Create or update page document type {Name}", name);
         IContentType? pageContentType = await contentTypeService
-            .GetAsync(UmbracoCommercePortalConstants.ContentTypes.Guids.PortalContainerPageGuid);
+            .GetAsync(pageGuid);
         if (pageContentType == null)
         {
             pageContentType = new ContentType(shortStringHelper, -1)
@@ -202,7 +257,7 @@ public class CreateUmbracoCommercePortalDocumentTypesTask(
             bool hasSettingsGroup = pageContentType.PropertyGroups.Contains("Settings");
             PropertyGroup settingsGroup = hasSettingsGroup
                 ? pageContentType.PropertyGroups["Settings"]
-                : new PropertyGroup(new PropertyTypeCollection(true, pageProperties))
+                : new PropertyGroup(new PropertyTypeCollection(true, pageProperties ?? Enumerable.Empty<IPropertyType>()))
                 {
                     Alias = "settings",
                     Name = "Settings",
@@ -210,12 +265,15 @@ public class CreateUmbracoCommercePortalDocumentTypesTask(
                     SortOrder = 100,
                 };
 
-            foreach (PropertyType prop in pageProperties)
+            if (pageProperties is not null)
             {
-                if (settingsGroup.PropertyTypes != null && !settingsGroup.PropertyTypes.Contains(prop.Alias))
+                foreach (PropertyType prop in pageProperties)
                 {
-                    settingsGroup.PropertyTypes.Add(prop);
-                    safeExisting = true;
+                    if (settingsGroup.PropertyTypes != null && !settingsGroup.PropertyTypes.Contains(prop.Alias))
+                    {
+                        settingsGroup.PropertyTypes.Add(prop);
+                        safeExisting = true;
+                    }
                 }
             }
 

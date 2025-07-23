@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +25,8 @@ internal class CreateUmbracoCommercePortalNodesTask(
             ?? throw new InvalidOperationException("Portal Page Document Type is not found");
         IContentType ucpPortalAuthPage = contentTypeService.Get(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage)
             ?? throw new InvalidOperationException("Portal Auth Page Document Type is not found");
+        IContentType ucpPortalManagementPage = contentTypeService.Get(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalManagementPage)
+            ?? throw new InvalidOperationException("Portal Management Page Document Type is not found");
 
         // Check if nodes exist
         IQuery<IContent> filter = scope.SqlContext.Query<IContent>().Where(x => x.ContentTypeId == ucpPortalContainerPage.Id);
@@ -43,6 +44,16 @@ internal class CreateUmbracoCommercePortalNodesTask(
             CreatePortalAuthPage(portalContainerPage, "Login", "Login");
             CreatePortalAuthPage(portalContainerPage, "Register", "Register");
             CreatePortalAuthPage(portalContainerPage, "Reset Password", "Reset Password");
+
+            // Create the management page
+            IContent portalManagementPage = contentService.CreateAndSave(
+                "Account",
+                portalContainerPage.Id,
+                UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalContainerPage);
+
+            // Create the portal management pages
+            CreatePortalAuthPage(portalManagementPage, "My Account", "My Account");
+            CreatePortalAuthPage(portalManagementPage, "Order History", "Order History");
         }
 
         scope.Complete();

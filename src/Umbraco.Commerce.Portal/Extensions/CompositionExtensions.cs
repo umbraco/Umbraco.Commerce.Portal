@@ -12,9 +12,9 @@ internal static class CompositionExtensions
     {
         IUmbracoCommerceBuilder commerceBuilder = builder.WithUmbracoCommerceBuilder();
         commerceBuilder.WithPipeline<InstallAsyncPipelineTask, InstallPipelineContext>()
+            .Add<ConfigureUmbracoCommercePortalStoreTask>()
             .Add<CreateUmbracoCommercePortalDocumentTypesTask>()
-            .Add<CreateUmbracoCommercePortalNodesTask>()
-            .Add<ConfigureUmbracoCommercePortalStoreTask>();
+            .Add<CreateUmbracoCommercePortalNodesTask>();
 
         return builder;
     }
