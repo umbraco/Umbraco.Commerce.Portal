@@ -25,6 +25,20 @@ internal static class PublishedContentExtensions
         content.Siblings()!
             .FirstOrDefault(x => x.ContentType.Alias == UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage && x.Name == "Reset Password");
 
+    public static IPublishedContent? GetMyAccountPage(this IPublishedContent content)
+    {
+        var portalManagementPage = content.Siblings()!
+            .FirstOrDefault(x => x.ContentType.Alias == UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalManagementPage);
+        if (portalManagementPage != null)
+        {
+            return portalManagementPage
+                .Children()
+                .FirstOrDefault(x => x.ContentType.Alias == UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage);
+        }
+
+        return null;
+    }
+
     public static StoreReadOnly GetStore(this IPublishedContent content)
     {
         return content.Value<StoreReadOnly>(Cms.Constants.Properties.StorePropertyAlias, fallback: Fallback.ToAncestors)

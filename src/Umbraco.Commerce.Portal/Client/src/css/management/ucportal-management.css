@@ -40,10 +40,7 @@ body {
   color: #6366f1;
 }
 
-.sidebar__logo-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+.sidebar__logo-icon img {
   border-radius: 8px;
   margin-right: 12px;
   display: flex;

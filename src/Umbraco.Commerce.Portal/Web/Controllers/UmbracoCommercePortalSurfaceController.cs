@@ -109,10 +109,10 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         }
 
         var name = $"{registerModel.FirstName} {registerModel.LastName}";
-        var identityUser = MemberIdentityUser.CreateNew(
+        MemberIdentityUser identityUser = MemberIdentityUser.CreateNew(
             registerModel.Email,
             registerModel.Email,
-            "member",
+            UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMemberType,
             false,
             name);
         IdentityResult identityResult = await _memberManager.CreateAsync(
@@ -121,6 +121,9 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         if (identityResult.Succeeded)
         {
             var member = _memberService.GetByEmail(registerModel.Email);
+            member.SetValue(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.FirstName, registerModel.FirstName);
+            member.SetValue(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.LastName, registerModel.LastName);
+            _memberService.Save(member);
 
             // Send confirm member email
             var template = await _commerceApi.GetEmailTemplateAsync(

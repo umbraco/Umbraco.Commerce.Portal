@@ -22,6 +22,8 @@ public static class UmbracoCommercePortalConstants
     {
         public static class Aliases
         {
+            public const string PortalMemberType = "ucpMember";
+
             public const string PortalContainerPage = "ucpPortalContainerPage";
 
             public const string PortalAuthPage = "ucpPortalAuthPage";
@@ -31,6 +33,23 @@ public static class UmbracoCommercePortalConstants
             public const string PortalMyAccountPage = "ucpPortalMyAccountPage";
 
             public const string PortalOrderHistoryPage = "ucpPortalOrderHistoryPage";
+        }
+
+        public static class MemberTypeAliases
+        {
+            public const string FirstName = "ucpMemberFirstName";
+
+            public const string LastName = "ucpMemberLastName";
+
+            public const string Country = "ucpMemberCountry";
+
+            public const string Street = "ucpMemberStreet";
+
+            public const string City = "ucpMemberCity";
+
+            public const string State = "ucpMemberState";
+
+            public const string ZipCode = "ucpZipCode";
         }
 
         public static class Guids

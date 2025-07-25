@@ -1,0 +1,46 @@
+@using Umbraco.Commerce.Portal.Extensions
+@inherits UmbracoViewPage
+@{
+    var store = Model.GetStore();
+    var portalContainerPage = Model.GetPortalContainerPage();
+    var homePage = Model.GetPublishedContentPropertyByAlias(UmbracoCommercePortalConstants.ContentTypes.Properties.HomePageAlias);
+
+    var logo = portalContainerPage.HasValue("ucpStoreLogo")
+        ? Html.Raw(Url.GetCropUrl(portalContainerPage.Value<IPublishedContent>("ucpStoreLogo"), 50, 50, imageCropMode: ImageCropMode.Max))
+        : Html.Raw(store.LogoImageUrl?.GetCropUrl(50, 50, imageCropMode: ImageCropMode.Max));
+}
+
+<aside class="sidebar">
+    <div class="sidebar__header">
+        <a href="@(homePage != null ? homePage.Url() : "/")" class="sidebar__logo">
+            <div class="sidebar__logo-icon">
+                <img src="@logo" alt="@store.Name" />
+            </div>
+        </a>
+    </div>
+
+    <nav class="sidebar__nav">
+        <ul class="sidebar__nav-list">
+            <li class="sidebar__nav-item">
+                <a href="#" class="sidebar__nav-link sidebar__nav-link--active">
+                    <svg class="sidebar__nav-icon" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                    My Account
+                </a>
+            </li>
+            <li class="sidebar__nav-item">
+                <a href="#" class="sidebar__nav-link">
+                    <svg class="sidebar__nav-icon" viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6V7h12v12zm-7-9h5v2h-5v-2zm0 3h5v2h-5v-2zm0 3h3v2h-3v-2zM7 10h2v2H7v-2zm0 3h2v2H7v-2zm0 3h2v2H7v-2z" />
+                    </svg>
+                    Order History
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar__footer">
+        @await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalSignOut.cshtml")
+    </div>
+</aside>

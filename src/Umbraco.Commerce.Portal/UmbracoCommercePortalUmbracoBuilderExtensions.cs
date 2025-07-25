@@ -13,6 +13,9 @@ public static class UmbracoCommercePortalUmbracoBuilderExtensions
         // Register pipeline
         builder.AddUmbracoCommercePortalInstallPipeline();
 
+        // Member services
+        builder.AddUmbracoCommercePortalMemberServices();
+
         return builder;
     }
 }

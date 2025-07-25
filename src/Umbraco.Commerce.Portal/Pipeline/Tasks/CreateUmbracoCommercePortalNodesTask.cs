@@ -49,7 +49,7 @@ internal class CreateUmbracoCommercePortalNodesTask(
             IContent portalManagementPage = contentService.CreateAndSave(
                 "Account",
                 portalContainerPage.Id,
-                UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalContainerPage);
+                UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalManagementPage);
 
             // Create the portal management pages
             CreatePortalAuthPage(portalManagementPage, "My Account", "My Account");
