@@ -8,7 +8,9 @@
 
     var registerPage = Model.GetRegisterPage();
     var forgotPasswordPage = Model.GetResetPasswordPage();
-    var myAccountPage = Model.GetMyAccountPage();
+    var myAccountPage = Model.GetAccountPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage);
+
+    Context.Request.Query.TryGetValue("returnUrl", out var returnUrl);
 
     var loginModel = new LoginModel();
 }
@@ -16,7 +18,11 @@
 <h2 class="auth__title">Sign in to your account</h2>
 
 @using (Html.BeginUmbracoForm<UmbLoginController>("HandleLogin",
-    new { RedirectUrl = myAccountPage != null ? myAccountPage.Url() : "/" },
+    new {
+        RedirectUrl = !string.IsNullOrEmpty(returnUrl)
+            ? returnUrl.ToString()
+            : myAccountPage != null ? myAccountPage.Url() : "/"
+    },
     new { @class = "auth__form" }))
 {
     <div class="auth__field">
