@@ -12,19 +12,19 @@
 
     Context.Request.Query.TryGetValue("returnUrl", out var returnUrl);
 
+    var redirectUrl = !string.IsNullOrEmpty(returnUrl)
+            ? returnUrl.ToString()
+            : myAccountPage != null ? myAccountPage.Url() : "/";
+
     var loginModel = new LoginModel();
 }
 
 <h2 class="auth__title">Sign in to your account</h2>
 
-@using (Html.BeginUmbracoForm<UmbLoginController>("HandleLogin",
-    new {
-        RedirectUrl = !string.IsNullOrEmpty(returnUrl)
-            ? returnUrl.ToString()
-            : myAccountPage != null ? myAccountPage.Url() : "/"
-    },
-    new { @class = "auth__form" }))
+@using (Html.BeginUmbracoForm("Login", "UmbracoCommercePortalSurface", new { @class = "auth__form" }))
 {
+    @Html.Hidden("loginModel.RedirectUrl", redirectUrl)
+
     <div class="auth__field">
         <label class="auth__label" asp-for="@loginModel.Username">Email address</label>
         <input class="auth__input" asp-for="@loginModel.Username" />

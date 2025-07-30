@@ -3,14 +3,19 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common.Models;
+using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
+using Umbraco.Cms.Web.Website.Models;
 using Umbraco.Commerce.Core.Api;
+using Umbraco.Commerce.Portal.Events;
 using Umbraco.Commerce.Portal.Extensions;
 using Umbraco.Commerce.Portal.Models;
 using Umbraco.Extensions;
@@ -19,10 +24,12 @@ namespace Umbraco.Commerce.Portal.Web.Controllers;
 
 public class UmbracoCommercePortalSurfaceController : SurfaceController
 {
+    private readonly IMemberSignInManager _signInManager;
     private readonly IMemberManager _memberManager;
     private readonly IMemberService _memberService;
     private readonly IPasswordHasher _hasher;
     private readonly IUmbracoCommerceApi _commerceApi;
+    private readonly IEventAggregator _eventAggregator;
 
     public UmbracoCommercePortalSurfaceController(
         IUmbracoContextAccessor umbracoContextAccessor,
@@ -31,16 +38,87 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         AppCaches appCaches,
         IProfilingLogger profilingLogger,
         IPublishedUrlProvider publishedUrlProvider,
+        IMemberSignInManager signInManager,
         IMemberManager memberManager,
         IMemberService memberService,
         IPasswordHasher hasher,
-        IUmbracoCommerceApi commerceApi)
+        IUmbracoCommerceApi commerceApi,
+        IEventAggregator eventAggregator)
         : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
     {
+        _signInManager = signInManager;
         _memberManager = memberManager;
         _memberService = memberService;
         _hasher = hasher;
         _commerceApi = commerceApi;
+        _eventAggregator = eventAggregator;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Login(LoginModel loginModel)
+    {
+        ArgumentNullException.ThrowIfNull(loginModel);
+
+        if (!ModelState.IsValid)
+        {
+            return CurrentUmbracoPage();
+        }
+
+        Microsoft.AspNetCore.Identity.SignInResult signInResult = await _signInManager.PasswordSignInAsync(
+            loginModel.Username,
+            loginModel.Password,
+            loginModel.RememberMe,
+            lockoutOnFailure: true);
+
+        if (signInResult.Succeeded)
+        {
+            var store = CurrentPage.GetStore();
+            var member = _memberService.GetByUsername(loginModel.Username);
+
+            _eventAggregator.Publish(new OnLoginNotification(member, store.Id));
+
+            TempData["LoginSuccess"] = true;
+
+            return Redirect(loginModel.RedirectUrl!);
+        }
+
+        if (signInResult.IsLockedOut)
+        {
+            ModelState.AddModelError("loginModel", "Member is locked out");
+        }
+        else if (signInResult.IsNotAllowed)
+        {
+            ModelState.AddModelError("loginModel", "Member is not allowed");
+        }
+        else
+        {
+            ModelState.AddModelError("loginModel", "Invalid username or password");
+        }
+
+        return CurrentUmbracoPage();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Logout(PostRedirectModel logoutModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            return CurrentUmbracoPage();
+        }
+
+        if (HttpContext.User.Identity?.IsAuthenticated ?? false)
+        {
+            await _signInManager.SignOutAsync();
+        }
+
+        TempData["LogoutSuccess"] = true;
+
+        if (logoutModel.RedirectUrl.IsNullOrWhiteSpace() == false)
+        {
+            return Redirect(logoutModel.RedirectUrl!);
+        }
+
+        return RedirectToCurrentUmbracoPage();
     }
 
     [HttpPost]

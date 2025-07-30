@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Commerce.Portal.Events;
 using Umbraco.Commerce.Portal.Extensions;
 
 namespace Umbraco.Commerce.Portal;
@@ -23,6 +24,9 @@ public static class UmbracoCommercePortalUmbracoBuilderExtensions
 
         // Member services
         builder.AddUmbracoCommercePortalMemberServices();
+
+        // Register authentication events
+        builder.AddNotificationAsyncHandler<OnLoginNotification, AssignOrderToMemberOnLoginNotificationHandler>();
 
         return builder;
     }
