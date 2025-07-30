@@ -15,17 +15,4 @@ public class UcpPortalAuthPageController
         : base(logger, compositeViewEngine, commerceApi)
     {
     }
-
-    public override async Task<IActionResult> Index()
-    {
-        ArgumentNullException.ThrowIfNull(CurrentPage);
-
-        // If the page has a template, render it
-        if (CurrentPage.TemplateId.HasValue && CurrentPage.TemplateId.Value > 0)
-        {
-            return await base.Index();
-        }
-
-        return View($"~/Views/UmbracoCommercePortal/UmbracoCommercePortal{CurrentPage.Name.Replace(" ", "")}Page.cshtml", CurrentPage);
-    }
 }

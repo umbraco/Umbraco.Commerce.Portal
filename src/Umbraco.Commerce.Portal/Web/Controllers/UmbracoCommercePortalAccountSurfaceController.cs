@@ -8,7 +8,6 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Website.Controllers;
-using Umbraco.Cms.Web.Website.Models;
 using Umbraco.Commerce.Portal.Models;
 
 namespace Umbraco.Commerce.Portal.Web.Controllers;

@@ -41,9 +41,9 @@ internal class CreateUmbracoCommercePortalNodesTask(
                 UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalContainerPage);
 
             // Create the portal auth pages
-            CreatePortalAuthPage(portalContainerPage, "Login", "Login");
-            CreatePortalAuthPage(portalContainerPage, "Register", "Register");
-            CreatePortalAuthPage(portalContainerPage, "Reset Password", "Reset Password");
+            CreatePortalAuthPage(portalContainerPage, "Login", "Login", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage);
+            CreatePortalAuthPage(portalContainerPage, "Register", "Register", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage);
+            CreatePortalAuthPage(portalContainerPage, "Reset Password", "Reset Password", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage);
 
             // Create the management page
             IContent portalManagementPage = contentService.CreateAndSave(
@@ -52,8 +52,8 @@ internal class CreateUmbracoCommercePortalNodesTask(
                 UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalManagementPage);
 
             // Create the portal management pages
-            CreatePortalAuthPage(portalManagementPage, "My Account", "My Account");
-            CreatePortalAuthPage(portalManagementPage, "Order History", "Order History");
+            CreatePortalAuthPage(portalManagementPage, "My Account", "My Account", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage);
+            CreatePortalAuthPage(portalManagementPage, "Order History", "Order History", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderHistoryPage);
         }
 
         scope.Complete();
@@ -61,12 +61,12 @@ internal class CreateUmbracoCommercePortalNodesTask(
         return Ok();
     }
 
-    private void CreatePortalAuthPage(IContent parent, string name, string shortName)
+    private void CreatePortalAuthPage(IContent parent, string name, string shortName, string documentTypeAlias)
     {
         IContent portalAuthNode = contentService.Create(
             name,
             parent.Id,
-            UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage);
+            documentTypeAlias);
         contentService.Save(portalAuthNode);
     }
 }

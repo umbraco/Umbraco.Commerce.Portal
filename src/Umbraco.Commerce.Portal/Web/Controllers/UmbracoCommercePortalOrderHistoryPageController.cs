@@ -8,10 +8,10 @@ using Umbraco.Commerce.Core.Api;
 
 namespace Umbraco.Commerce.Portal.Web.Controllers;
 
-public class UcpPortalMyAccountPageController
+public class UcpPortalOrderHistoryPageController
     : UmbracoCommercePortalBaseController
 {
-    public UcpPortalMyAccountPageController(ILogger<UmbracoPageController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoCommerceApi commerceApi)
+    public UcpPortalOrderHistoryPageController(ILogger<UmbracoPageController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoCommerceApi commerceApi)
         : base(logger, compositeViewEngine, commerceApi)
     {
     }

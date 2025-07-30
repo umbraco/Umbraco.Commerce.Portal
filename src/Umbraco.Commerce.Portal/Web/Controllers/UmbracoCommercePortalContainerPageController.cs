@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -19,14 +18,6 @@ public class UcpPortalContainerPageController : UmbracoCommercePortalBaseControl
 
     public override async Task<IActionResult> Index()
     {
-        ArgumentNullException.ThrowIfNull(CurrentPage);
-
-        // If the page has a template, render it
-        if (CurrentPage.TemplateId.HasValue && CurrentPage.TemplateId.Value > 0)
-        {
-            return await base.Index();
-        }
-
         // If no template is set, return first child if available
         var children = CurrentPage.Children().ToList();
         if (children.Count > 0)
@@ -35,6 +26,6 @@ public class UcpPortalContainerPageController : UmbracoCommercePortalBaseControl
             return RedirectPermanent(firstChild.Url());
         }
 
-        return NotFound();
+        return await base.Index();
     }
 }

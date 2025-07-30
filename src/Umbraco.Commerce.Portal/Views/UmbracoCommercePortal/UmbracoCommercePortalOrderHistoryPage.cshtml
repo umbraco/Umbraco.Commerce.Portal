@@ -1,0 +1,38 @@
+@using Umbraco.Cms.Core.Security
+@using Umbraco.Commerce.Portal.Extensions
+@using Umbraco.Commerce.Portal.Models
+@using Umbraco.Commerce.Portal.Services
+@inject PortalMemberService PortalMemberService
+@inject IMemberManager MemberManager
+@inject IUmbracoCommerceApi CommerceApi
+@inherits UmbracoViewPage
+@{
+    Layout = "UmbracoCommercePortalManagementLayout.cshtml";
+
+    var store = Model.GetStore();
+
+    var accountModel = PortalMemberService.Get(Context.User!.Identity!.Name!);
+
+    var currentMember = await MemberManager.GetCurrentMemberAsync();
+
+    var orders = currentMember != null
+        ? await CommerceApi.GetFinalizedOrdersForCustomerAsync(store.Id, currentMember.Email)
+        : Enumerable.Empty<OrderReadOnly>();
+}
+
+@await Html.PartialAsync(
+    $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalManagementHeader.cshtml",
+        new ManagementPageHeader("Order History", "View and track your past orders"))
+
+<div class="main__content" id="mainContent">
+    <div class="orders">
+        <h2 class="orders__title">Your Orders</h2>
+
+        @foreach (var order in orders)
+        {
+            @await Html.PartialAsync(
+                $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalOrderListView.cshtml",
+                order)    
+        }
+    </div>
+</div>

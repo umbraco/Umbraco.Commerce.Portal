@@ -312,9 +312,7 @@ body {
 /* Orders Block */
 .orders {
   background-color: #ffffff;
-  border-radius: 8px;
-  padding: 32px;
-  border: 1px solid #e0e6ed;
+  padding: 15px;
 }
 
 .orders__title {
@@ -326,6 +324,9 @@ body {
 
 .orders__group {
   margin-bottom: 32px;
+  border-radius: 8px;
+  padding: 32px;
+  border: 1px solid #e0e6ed;
 }
 
   .orders__group:last-child {
@@ -367,7 +368,7 @@ body {
   font-weight: 500;
   padding: 4px 8px;
   border-radius: 4px;
-  background-color: #10b981;
+  /*background-color: #10b981;*/
   color: #ffffff;
 }
 

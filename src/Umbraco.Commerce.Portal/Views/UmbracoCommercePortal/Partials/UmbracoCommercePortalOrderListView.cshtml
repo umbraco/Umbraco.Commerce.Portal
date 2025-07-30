@@ -1,0 +1,72 @@
+@inject IUmbracoCommerceApi CommerceApi
+@inherits UmbracoViewPage<OrderReadOnly>
+
+@{
+    var orderStatus = await CommerceApi.GetOrderStatusAsync(Model.OrderStatusId);
+}
+
+<div class="orders__group">
+    <div class="orders__header">
+        <div class="orders__info">
+            <div class="orders__info-item">
+                <span class="orders__info-label">Order Number</span>
+                <span class="orders__info-value">#@Model.OrderNumber</span>
+            </div>
+            <div class="orders__info-item">
+                <span class="orders__info-label">Order Date</span>
+                <span class="orders__info-value">@Model.FinalizedDate</span>
+            </div>
+            <div class="orders__info-item">
+                <span class="orders__info-label">Total Amount</span>
+                <span class="orders__info-value">@(await Model.TotalPrice.Value.FormattedAsync())</span>
+            </div>
+            <div class="orders__info-item">
+                <span class="orders__info-label">Status</span>
+                @if (orderStatus != null)
+                {
+                    <span class="orders__status" style="background-color: @orderStatus.Color">@orderStatus.Name</span>
+                }
+            </div>
+        </div>
+        <button class="button button--primary button--small">View Order</button>
+    </div>
+
+    <ul class="orders__list">
+        @foreach (var orderLine in Model.OrderLines)
+        {
+            var product = Umbraco.Content(Guid.Parse(orderLine.ProductReference));
+
+            if (product != null)
+            {
+                var image = product.Value<IPublishedContent>("image");
+
+                <li class="orders__item">
+                    <div class="orders__product-image"
+                         style="background: linear-gradient(135deg, #3b82f6, #1e40af); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                        <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" />
+                    </div>
+                    <div class="orders__product-details">
+                        <div class="orders__product-name">@product.Name</div>
+                        <div class="orders__product-specs">
+                            @if (orderLine.Attributes.Count > 0)
+                            {
+                                foreach (var orderLineAtt in orderLine.Attributes)
+                                {
+                                    <div class="orders__product-spec">
+                                        <span>@orderLineAtt.Name:</span>
+                                        <span>@orderLineAtt.Value</span>
+                                    </div>
+                                }
+                            }
+                            <div class="orders__product-spec">
+                                <span>Quantity:</span>
+                                <span>@orderLine.Quantity</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="orders__product-price">@(await orderLine.UnitPrice.Value.FormattedAsync())</div>
+                </li>
+            }
+        }
+    </ul>
+</div>

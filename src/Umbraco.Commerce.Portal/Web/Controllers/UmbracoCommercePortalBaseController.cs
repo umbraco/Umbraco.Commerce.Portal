@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
@@ -24,6 +25,16 @@ public class UmbracoCommercePortalBaseController : UmbracoPageController, IRende
         CommerceApi = commerceApi;
     }
 
-    public virtual Task<IActionResult> Index()
-          => Task.FromResult(CurrentTemplate(new ContentModel(CurrentPage)));
+    public virtual async Task<IActionResult> Index()
+    {
+        ArgumentNullException.ThrowIfNull(CurrentPage);
+
+        // If the page has a template, render it
+        if (CurrentPage.TemplateId.HasValue && CurrentPage.TemplateId.Value > 0)
+        {
+            return CurrentTemplate(new ContentModel(CurrentPage));
+        }
+
+        return View($"~/Views/UmbracoCommercePortal/UmbracoCommercePortal{CurrentPage.Name.Replace(" ", "")}Page.cshtml", CurrentPage);
+    }
 }
