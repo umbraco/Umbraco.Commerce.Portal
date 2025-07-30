@@ -3,12 +3,57 @@
 
 @inherits UmbracoCommerceRazorTemplateView<EmailModel>
 
-<div>
+<style>
+    body {
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+        font-family: Arial, sans-serif;
+    }
+
+    .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+    }
+
+    h2 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    p {
+        color: #555;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    .confirm-button {
+        display: inline-block;
+        background-color: #007bff;
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+</style>
+
+<div class="email-container">
     <h2>Confirm Account</h2>
     <p>Hi <strong>@Model.Name</strong></p>
     <p>Thank you for signing up.</p>
     <p>
-        Please confirm your account using the following link:
-        <a href="@Model.Url">confirm</a>
+        Please confirm your account using the following button:
+    </p>
+    <p>
+        <a href="@Model.Url" class="confirm-button">Confirm Account</a>
+    </p>
+    <p>
+        If the button doesn't work, you can copy and paste this link into your browser:<br>
+        <a href="@Model.Url" style="color: #007bff; word-break: break-all;">@Model.Url</a>
     </p>
 </div>
