@@ -109,6 +109,24 @@ public class CreateUmbracoCommercePortalDocumentTypesTask(
             return Fail(portalOrderHistoryPageAttempt.Exception);
         }
 
+        // Portal Order Details Page
+        Attempt<IContentType?> portalOrderDetailsPageAttempt = await AddOrUpdatePageContentTypeAsync(
+          UmbracoCommercePortalConstants.ContentTypes.Guids.PortalOrderDetailsPageGuid,
+          null,
+          UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderDetailsPage,
+          string.Format(ContentTypePageName, "Order Details"),
+          "icon-shopping-basket color-blue",
+          null,
+          portalContentTypeFolder.Key);
+        if (!portalOrderDetailsPageAttempt.Success)
+        {
+            logger.LogError(
+                portalOrderDetailsPageAttempt.Exception,
+                "Create or update portal my account page attempt status {AttemptStatus}.",
+                portalOrderDetailsPageAttempt.Result);
+            return Fail(portalOrderDetailsPageAttempt.Exception);
+        }
+
         // Portal Management Page
         Attempt<IContentType?> portalManagementPageAttempt = await AddOrUpdatePageContentTypeAsync(
             UmbracoCommercePortalConstants.ContentTypes.Guids.PortalManagementPageGuid,

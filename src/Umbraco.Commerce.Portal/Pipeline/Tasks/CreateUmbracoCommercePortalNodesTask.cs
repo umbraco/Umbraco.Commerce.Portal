@@ -54,6 +54,7 @@ internal class CreateUmbracoCommercePortalNodesTask(
             // Create the portal management pages
             CreatePortalAuthPage(portalManagementPage, "My Account", "My Account", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage);
             CreatePortalAuthPage(portalManagementPage, "Order History", "Order History", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderHistoryPage);
+            CreatePortalAuthPage(portalManagementPage, "Order Details", "Order Details", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderDetailsPage);
         }
 
         scope.Complete();

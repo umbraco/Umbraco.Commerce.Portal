@@ -1,0 +1,15 @@
+@using Umbraco.Commerce.Portal.Extensions
+@inherits UmbracoViewPage
+@{
+    var orderHistoryPage = Model.GetAccountPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderHistoryPage);
+}
+
+<div class="order-details__back-button">
+    <a href="javascript:void(0)" class="order-details__back-link"
+       onclick="location.href = '@(orderHistoryPage != null ? orderHistoryPage.Url() : "/")'">
+        <svg class="order-details__back-icon" viewBox="0 0 24 24">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+        </svg>
+        Back to Orders
+    </a>
+</div>

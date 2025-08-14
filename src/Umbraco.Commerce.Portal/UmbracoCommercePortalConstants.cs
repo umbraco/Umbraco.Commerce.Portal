@@ -33,6 +33,8 @@ public static class UmbracoCommercePortalConstants
             public const string PortalMyAccountPage = "ucpPortalMyAccountPage";
 
             public const string PortalOrderHistoryPage = "ucpPortalOrderHistoryPage";
+
+            public const string PortalOrderDetailsPage = "ucpPortalOrderDetailsPage";
         }
 
         public static class MemberTypeAliases
@@ -71,6 +73,9 @@ public static class UmbracoCommercePortalConstants
 
             private const string PortalOrderHistoryPage = "b5eb4942-cb4d-458e-bffd-91d1175af4d9";
             public static readonly Guid PortalOrderHistoryPageGuid = new(PortalOrderHistoryPage);
+
+            private const string PortalOrderDetailsPage = "85ef6c57-11d6-44d4-8e80-87f9e917a41d";
+            public static readonly Guid PortalOrderDetailsPageGuid = new(PortalOrderDetailsPage);
         }
 
         public static class Properties
