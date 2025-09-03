@@ -5,7 +5,7 @@
 @{
     var orderStatus = await CommerceApi.GetOrderStatusAsync(Model.OrderStatusId);
 
-    var orderDetailsPage = Umbraco.AssignedContentItem.GetAccountPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderDetailsPage);
+    var orderDetailsPage = Umbraco.AssignedContentItem.GetPortalContainerPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderDetailsPage, null);
     var orderDetailsUrl = $"{orderDetailsPage.Url()}?orderId={Model.Id}";
 }
 
@@ -47,7 +47,10 @@
                 <li class="orders__item">
                     <div class="orders__product-image"
                          style="display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; width: 150px; height: 150px;">
-                        <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" />
+                         @if (image != null)
+                         {
+                            <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" />
+                         }
                     </div>
                     <div class="orders__product-details">
                         <div class="orders__product-name">@product.Name</div>

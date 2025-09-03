@@ -30,7 +30,7 @@ internal class CreateUmbracoCommercePortalNodesTask(
 
         // Check if nodes exist
         IQuery<IContent> filter = scope.SqlContext.Query<IContent>().Where(x => x.ContentTypeId == ucpPortalContainerPage.Id);
-        IEnumerable<IContent> childNodes = contentService.GetPagedChildren(args.Model.SiteRootNodeId, 1, 1, out long totalRecords, filter);
+        contentService.GetPagedChildren(args.Model.SiteRootNodeId, 1, 1, out long totalRecords, filter);
 
         if (totalRecords == 0)
         {
