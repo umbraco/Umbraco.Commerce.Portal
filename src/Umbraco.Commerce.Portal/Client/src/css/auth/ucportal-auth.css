@@ -43,10 +43,6 @@
   margin-bottom: 15px;
 }
 
-  .auth__logo img {
-    border-radius: 10%;
-  }
-
 .auth__title {
   font-size: 22px;
   color: #111827;
@@ -158,7 +154,7 @@
 }
 
 /* Wider auth box specifically for signup */
-body:has(h2.auth__title:contains("Create an account")) .auth__box {
+body:has(h2.auth__title-register) .auth__box {
   max-width: 540px;
 }
 
