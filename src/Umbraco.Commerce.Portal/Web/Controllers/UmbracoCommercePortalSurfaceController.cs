@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core.Cache;
-using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
@@ -13,7 +12,7 @@ using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.Models;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
-using Umbraco.Cms.Web.Website.Models;
+using Umbraco.Commerce.Common.Events;
 using Umbraco.Commerce.Core.Api;
 using Umbraco.Commerce.Portal.Events;
 using Umbraco.Commerce.Portal.Extensions;
@@ -29,7 +28,6 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
     private readonly IMemberService _memberService;
     private readonly IPasswordHasher _hasher;
     private readonly IUmbracoCommerceApi _commerceApi;
-    private readonly IEventAggregator _eventAggregator;
 
     public UmbracoCommercePortalSurfaceController(
         IUmbracoContextAccessor umbracoContextAccessor,
@@ -42,8 +40,7 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         IMemberManager memberManager,
         IMemberService memberService,
         IPasswordHasher hasher,
-        IUmbracoCommerceApi commerceApi,
-        IEventAggregator eventAggregator)
+        IUmbracoCommerceApi commerceApi)
         : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
     {
         _signInManager = signInManager;
@@ -51,11 +48,10 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         _memberService = memberService;
         _hasher = hasher;
         _commerceApi = commerceApi;
-        _eventAggregator = eventAggregator;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(LoginModel loginModel)
+    public async Task<IActionResult> Login(Models.LoginModel loginModel)
     {
         ArgumentNullException.ThrowIfNull(loginModel);
 
@@ -64,8 +60,10 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             return CurrentUmbracoPage();
         }
 
+        var member = _memberService.GetByEmail(loginModel.Email);
+
         Microsoft.AspNetCore.Identity.SignInResult signInResult = await _signInManager.PasswordSignInAsync(
-            loginModel.Username,
+            member != null ? member.Username : loginModel.Email,
             loginModel.Password,
             loginModel.RememberMe,
             lockoutOnFailure: true);
@@ -73,9 +71,8 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         if (signInResult.Succeeded)
         {
             var store = CurrentPage.GetStore();
-            var member = _memberService.GetByUsername(loginModel.Username);
 
-            _eventAggregator.Publish(new OnLoginNotification(member, store.Id));
+            await EventBus.DispatchAsync(new OnLoginNotification(member, store.Id));
 
             TempData["LoginSuccess"] = true;
 
@@ -106,10 +103,14 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             return CurrentUmbracoPage();
         }
 
+        var member = _memberService.GetByEmail(HttpContext.User.Identity.Name);
         if (HttpContext.User.Identity?.IsAuthenticated ?? false)
         {
             await _signInManager.SignOutAsync();
         }
+
+        var store = CurrentPage.GetStore();
+        await EventBus.DispatchAsync(new OnLogoutNotification(member, store.Id));
 
         TempData["LogoutSuccess"] = true;
 
@@ -149,6 +150,11 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             new EmailModel(member.Name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?key={member.Key}"),
             member.Email,
             "en-US");
+        if (!result)
+        {
+            ModelState.AddModelError("memberEmail", "Failed to send confirmation email.");
+            return CurrentUmbracoPage();
+        }
 
         TempData["Success"] = "A reset password email has been sent to your email address.";
 
@@ -212,6 +218,11 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
                 new EmailModel(name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?key={member.Key}"),
                 registerModel.Email,
                 "en-US");
+            if (!result)
+            {
+                ModelState.AddModelError("memberEmail", "Failed to send confirmation email.");
+                return CurrentUmbracoPage();
+            }
 
             TempData["Success"] = "Member account created. Please confirm it from the received email.";
         }
