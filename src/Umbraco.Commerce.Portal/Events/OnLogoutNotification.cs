@@ -1,11 +1,11 @@
+using System;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Notifications;
 
 namespace Umbraco.Commerce.Portal.Events;
 
-public class OnLogoutNotification : INotification
+public class OnLogoutNotification : PortalAuthNotificationEventBase<IMember, Guid>
 {
-    public IMember LoggedOutMember { get; }
-
-    public OnLogoutNotification(IMember loggedOutMember) => LoggedOutMember = loggedOutMember;
+    public OnLogoutNotification(IMember member, Guid storeId)
+        : base(member, storeId)
+    { }
 }
