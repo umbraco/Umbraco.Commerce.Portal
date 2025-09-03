@@ -26,6 +26,6 @@ public class UcpPortalManagementPageController : UmbracoCommercePortalBaseContro
             return RedirectPermanent(firstChild.Url());
         }
 
-        return await base.Index();
+        return NotFound();
     }
 }
