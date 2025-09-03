@@ -4,20 +4,25 @@
     var store = Model.GetStore();
 
     var portalContainerPage = Model.GetPortalContainerPage();
-    var homePage = Model.GetPublishedContentPropertyByAlias(UmbracoCommercePortalConstants.ContentTypes.Properties.HomePageAlias);
-    var myAccountPage = Model.GetAccountPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage);
-    var orderHistoryPage = Model.GetAccountPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderHistoryPage);
+    var homePage = Model.GetPortalContainerSettingByAlias(UmbracoCommercePortalConstants.ContentTypes.Properties.HomePageAlias);
+    var myAccountPage = Model.GetPortalContainerPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage, null);
+    var orderHistoryPage = Model.GetPortalContainerPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderHistoryPage, null);
 
-    var logo = portalContainerPage.HasValue("ucpStoreLogo")
-        ? Html.Raw(Url.GetCropUrl(portalContainerPage.Value<IPublishedContent>("ucpStoreLogo"), 50, 50, imageCropMode: ImageCropMode.Max))
-        : Html.Raw(store.LogoImageUrl?.GetCropUrl(50, 50, imageCropMode: ImageCropMode.Max));
+    var logo = Html.Raw(Model.GetStoreLogo(50, 50));
 }
 
 <aside class="sidebar">
     <div class="sidebar__header">
         <a href="@(homePage != null ? homePage.Url() : "/")" class="sidebar__logo">
             <div class="sidebar__logo-icon">
-                <img src="@logo" alt="@store.Name" />
+                @if (!string.IsNullOrEmpty(logo.ToString()))
+                {
+                    <img src="@logo" alt="@store.Name" />
+                }
+                else
+                {
+                    <text>@store.Name</text>
+                }
             </div>
         </a>
     </div>

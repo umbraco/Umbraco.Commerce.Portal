@@ -10,9 +10,7 @@
 
     var themeColor = Model.GetThemeColor();
 
-    var logo = portalContainerPage.HasValue("ucpStoreLogo")
-        ? Html.Raw(Url.GetCropUrl(portalContainerPage.Value<IPublishedContent>("ucpStoreLogo"), 100, 100, imageCropMode: ImageCropMode.Max))
-        : Html.Raw(store.LogoImageUrl?.GetCropUrl(100, 100, imageCropMode: ImageCropMode.Max));
+    var logo = Model.GetStoreLogo(100, 100);
 }
 
 <!DOCTYPE html>
@@ -38,10 +36,17 @@
         <div class="auth__box">
             <div class="auth__logo">
                 <a href="/">
-                    <img src="@logo" alt="@store.Name" />
+                    @if (!string.IsNullOrEmpty(logo))
+                    {
+                        <img src="@logo" alt="@store.Name" />
+                    }
+                    else
+                    {
+                        <text>@store.Name</text>
+                    }
                 </a>
             </div>
-            
+
             @RenderBody()
 
             @await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalAuthFooter.cshtml")
