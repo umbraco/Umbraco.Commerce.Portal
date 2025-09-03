@@ -9,12 +9,16 @@ public static class UmbracoCommercePortalConstants
 
     public static class EmailTemplates
     {
-        public static KeyValuePair<string, string> ConfirmMemberEmailTemplate => new(
+        public record EmailTemplate(string Key, string Name, string TemplateView);
+
+        public static EmailTemplate ConfirmMemberEmailTemplate => new(
             "UmbracoCommercePortal-ConfirmMember",
+            "Umbraco Commerce Portal - Confirm Member",
             "~/Views/Templates/Email/UmbracoCommercePortalConfirmMemberEmail.cshtml");
 
-        public static KeyValuePair<string, string> ResetPasswordEmailTemplate => new(
+        public static EmailTemplate ResetPasswordEmailTemplate => new(
             "UmbracoCommercePortal-ResetPassword",
+            "Umbraco Commerce Portal - Reset Password",
             "~/Views/Templates/Email/UmbracoCommercePortalResetPasswordEmail.cshtml");
     }
 
@@ -86,5 +90,14 @@ public static class UmbracoCommercePortalConstants
 
             public const string PrivacyPolicyPageAlias = "ucpPrivacyPolicyPage";
         }
+    }
+
+    public static class ContentNodes
+    {
+        public const string PortalAuthLoginPageNodeName = "Login";
+
+        public const string PortalAuthRegisterPageNodeName = "Register";
+
+        public const string PortalAuthResetPasswordPageNodeName = "Reset Password";
     }
 }
