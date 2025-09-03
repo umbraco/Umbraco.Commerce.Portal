@@ -8,7 +8,7 @@ public class PortalMemberService(IMemberService memberService)
 {
     public AccountModel Get(string email)
     {
-        var member = memberService.GetByUsername(email);
+        var member = memberService.GetByEmail(email);
         return member.ToModel();
     }
 }
