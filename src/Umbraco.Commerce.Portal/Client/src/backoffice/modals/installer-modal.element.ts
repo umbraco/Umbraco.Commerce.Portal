@@ -57,8 +57,6 @@ export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
     try {
       const installationResult = await installUmbracoCommercePortalAsync(this._installationRoot!);
 
-      console.log("Installation result:", installationResult);
-
       if (installationResult.success) {
         this._installButton = {
           ...this._installButton,
