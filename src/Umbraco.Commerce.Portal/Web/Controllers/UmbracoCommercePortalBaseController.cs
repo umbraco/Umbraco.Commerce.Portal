@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Commerce.Core.Api;
+using Umbraco.Commerce.Portal.Extensions;
 
 namespace Umbraco.Commerce.Portal.Web.Controllers;
 
@@ -35,6 +36,6 @@ public class UmbracoCommercePortalBaseController : UmbracoPageController, IRende
             return CurrentTemplate(new ContentModel(CurrentPage));
         }
 
-        return View($"~/Views/UmbracoCommercePortal/UmbracoCommercePortal{CurrentPage.Name.Replace(" ", "")}Page.cshtml", CurrentPage);
+        return View(CurrentPage.GetView(), CurrentPage);
     }
 }

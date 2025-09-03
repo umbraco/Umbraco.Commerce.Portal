@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Commerce.Core.Models;
 using Umbraco.Commerce.Portal.Exceptions;
@@ -8,43 +10,35 @@ namespace Umbraco.Commerce.Portal.Extensions;
 
 internal static class PublishedContentExtensions
 {
-    public static IPublishedContent GetPortalContainerPage(this IPublishedContent content)
+    public static IPublishedContent? GetPortalContainerPage(this IPublishedContent content)
+        => content.AncestorOrSelf(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalContainerPage)!;
+
+    public static IPublishedContent? GetPortalContainerPage(this IPublishedContent content, string contentTypeAlias, string? name)
     {
-        return content.AncestorOrSelf(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalContainerPage)!;
-    }
+        var portalContainerPage = content.GetPortalContainerPage();
 
-    public static IPublishedContent? GetLoginPage(this IPublishedContent content) =>
-        content.Siblings()!
-            .FirstOrDefault(x => x.ContentType.Alias == UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage && x.Name == "Login");
-
-    public static IPublishedContent? GetRegisterPage(this IPublishedContent content) =>
-        content.Siblings()!
-            .FirstOrDefault(x => x.ContentType.Alias == UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage && x.Name == "Register");
-
-    public static IPublishedContent? GetResetPasswordPage(this IPublishedContent content) =>
-        content.Siblings()!
-            .FirstOrDefault(x => x.ContentType.Alias == UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage && x.Name == "Reset Password");
-
-    public static IPublishedContent? GetAccountPage(this IPublishedContent content, string contentTypeAlias)
-    {
-        var portalMyAccountPage = content.SiblingsAndSelf()!
-            .FirstOrDefault(x => x.ContentType.Alias == contentTypeAlias);
-        if (portalMyAccountPage != null)
+        // Attempt to lookup page in the descendants of the portal container page
+        var authPage = portalContainerPage
+            .Descendants()
+            .FirstOrDefault(x => x.ContentType.Alias == contentTypeAlias && x.Name == name);
+        if (authPage != null)
         {
-            return portalMyAccountPage;
+            return authPage;
         }
 
-        var portalManagementPage = content.Siblings()!
+        // Attempt to lookup page in the descendants of the portal management page. In this case, the content type alias is enough
+        var portalManagementPage = portalContainerPage
+            .Descendants()
             .FirstOrDefault(x => x.ContentType.Alias == UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalManagementPage);
-        if (portalManagementPage != null)
-        {
-            return portalManagementPage
-                .Children()
-                .FirstOrDefault(x => x.ContentType.Alias == contentTypeAlias);
-        }
+        var accountPage = portalManagementPage
+               .Descendants()
+               .FirstOrDefault(x => x.ContentType.Alias == contentTypeAlias);
 
         return null;
     }
+
+    public static IPublishedContent? GetPortalContainerSettingByAlias(this IPublishedContent content, string alias) =>
+        content.AncestorOrSelf(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalContainerPage)!.Value<IPublishedContent>(alias);
 
     public static StoreReadOnly GetStore(this IPublishedContent content)
     {
@@ -69,7 +63,21 @@ internal static class PublishedContentExtensions
             : "#000000";
     }
 
-    public static IPublishedContent? GetPublishedContentPropertyByAlias(this IPublishedContent content, string alias) =>
-        GetPortalContainerPage(content)
-            .Value<IPublishedContent>(alias);
+    public static string GetStoreLogo(this IPublishedContent content, int width, int height)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+
+        var portalContainerPage = content.GetPortalContainerPage();
+        if (portalContainerPage == null)
+        {
+            return string.Empty;
+        }
+
+        return portalContainerPage.HasValue("ucpStoreLogo")
+            ? portalContainerPage.Value<IPublishedContent>("ucpStoreLogo").GetCropUrl(width, height, imageCropMode: ImageCropMode.Max)
+            : content.GetStore().LogoImageUrl.GetCropUrl(width, height, imageCropMode: ImageCropMode.Max);
+    }
+
+    public static string GetView(this IPublishedContent content) =>
+        $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/UmbracoCommercePortal{content.ContentType.Alias}Page.cshtml";
 }
