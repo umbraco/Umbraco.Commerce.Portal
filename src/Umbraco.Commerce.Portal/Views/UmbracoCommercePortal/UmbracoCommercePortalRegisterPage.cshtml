@@ -5,7 +5,9 @@
 @{
     Layout = "UmbracoCommercePortalAuthLayout.cshtml";
 
-    var loginPage = Model.GetLoginPage();
+    var loginPage = Model.GetPortalContainerPage(
+        UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage,
+        UmbracoCommercePortalConstants.ContentNodes.PortalAuthLoginPageNodeName);
 
     var registerModel = new RegisterMemberModel();
     var confirmMemberModel = new ConfirmMemberModel();
@@ -16,7 +18,7 @@
     }
 }
 
-<h2 class="auth__title">Create an account</h2>
+<h2 class="auth__title auth__title-register">Create an account</h2>
 
 @if (!string.IsNullOrEmpty(key))
 {
@@ -68,12 +70,12 @@ else
 
         <div class="auth__field">
             <label class="auth__label" asp-for="@registerModel.Password">Password</label>
-            <input class="auth__input" type="password" asp-for="@registerModel.Password" />
+            <input class="auth__input" type="password" asp-for="@registerModel.Password" autocomplete="off" />
         </div>
 
         <div class="auth__field">
             <label class="auth__label" asp-for="@registerModel.ConfirmPassword">Confirm Password</label>
-            <input class="auth__input" type="password" asp-for="@registerModel.ConfirmPassword" />
+            <input class="auth__input" type="password" asp-for="@registerModel.ConfirmPassword" autocomplete="off" />
         </div>
 
         <div class="auth__field">

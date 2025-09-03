@@ -1,14 +1,20 @@
-@using Umbraco.Cms.Web.Common.Models
 @using Umbraco.Cms.Web.Website.Controllers
+@using Umbraco.Commerce.Portal.Models
 @using Umbraco.Commerce.Portal.Extensions
 
 @inherits UmbracoViewPage
 @{
     Layout = "UmbracoCommercePortalAuthLayout.cshtml";
 
-    var registerPage = Model.GetRegisterPage();
-    var forgotPasswordPage = Model.GetResetPasswordPage();
-    var myAccountPage = Model.GetAccountPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage);
+    var registerPage = Model.GetPortalContainerPage(
+        UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage,
+        UmbracoCommercePortalConstants.ContentNodes.PortalAuthRegisterPageNodeName);
+    var forgotPasswordPage = Model.GetPortalContainerPage(
+        UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage,
+        UmbracoCommercePortalConstants.ContentNodes.PortalAuthResetPasswordPageNodeName);
+    var myAccountPage = Model.GetPortalContainerPage(
+        UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage,
+        UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage);
 
     Context.Request.Query.TryGetValue("returnUrl", out var returnUrl);
 
@@ -26,8 +32,8 @@
     @Html.Hidden("loginModel.RedirectUrl", redirectUrl)
 
     <div class="auth__field">
-        <label class="auth__label" asp-for="@loginModel.Username">Email address</label>
-        <input class="auth__input" asp-for="@loginModel.Username" />
+        <label class="auth__label" asp-for="@loginModel.Email">Email address</label>
+        <input class="auth__input" asp-for="@loginModel.Email" />
     </div>
 
     <div class="auth__field">
@@ -35,7 +41,7 @@
             <label class="auth__label" asp-for="@loginModel.Password">Password</label>
             <a class="auth__link auth__link--right" href="@(forgotPasswordPage != null ? forgotPasswordPage.Url() : "#")">Forgot password?</a>
         </div>
-        <input class="auth__input" asp-for="@loginModel.Password" type="password" />
+        <input class="auth__input" asp-for="@loginModel.Password" type="password" autocomplete="off" />
     </div>
 
     <div class="auth__field">
