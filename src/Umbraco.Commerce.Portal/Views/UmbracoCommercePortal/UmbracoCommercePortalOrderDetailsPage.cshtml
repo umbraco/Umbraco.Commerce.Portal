@@ -9,19 +9,23 @@
     Context.Request.Query.TryGetValue("orderId", out var orderId);
 
     var store = Model.GetStore();
+    var portalContainerPage = Model.GetPortalContainerPage();
 
     var order = await CommerceApi.GetOrderAsync(Guid.Parse(orderId!));
     var orderStatus = await CommerceApi.GetOrderStatusAsync(order.OrderStatusId);
     var paymentMethod = await CommerceApi.GetPaymentMethodAsync(order.PaymentInfo.PaymentMethodId!.Value);
     var orderPropertyConfig = await CommerceApi.GetOrderPropertyConfigAsync(store.Alias);
 
-    CustomerModel customerModel = order.GetCustomerModel();
-    AddressModel billingAddressModel = order.GetBillingAddressModel();
+    CustomerModel customerModel = order.GetCustomerModel(orderPropertyConfig);
+    AddressModel billingAddressModel = order.GetBillingAddressModel(orderPropertyConfig);
     var orderBillingAddress = await order.GetBillingAddressAsync(orderPropertyConfig);
     billingAddressModel.Country = (await CommerceApi.GetCountryAsync(store.Id, orderBillingAddress.CountryIsoCode)).Name;
-    AddressModel shippingAddressModel = order.GetShippingAddressModel();
+    AddressModel shippingAddressModel = order.GetShippingAddressModel(orderPropertyConfig);
     var orderShippingAddress = await order.GetShippingAddressAsync(orderPropertyConfig);
     shippingAddressModel.Country = (await CommerceApi.GetCountryAsync(store.Id, orderBillingAddress.CountryIsoCode)).Name;
+
+    bool canCollectBillingInfo = portalContainerPage.Value<bool>("ucpCollectBillingInfo");
+    bool canCollectShippingInfo = portalContainerPage.Value<bool>("ucpCollectShippingInfo");
 }
 
 <div class="order-details">
@@ -62,11 +66,6 @@
         <div class="order-details__section order-details__section--editable">
             <div class="order-details__section-title">
                 Customer
-                <button class="order-details__edit-button" onclick="editCustomer(true)">
-                    <svg class="order-details__edit-icon" viewBox="0 0 24 24">
-                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                    </svg>
-                </button>
             </div>
             <div id="customer-view">
                 <div class="order-details__field">
@@ -82,35 +81,6 @@
                     <div class="order-details__field-value">@customerModel.Telephone</div>
                 </div>
             </div>
-            <div id="customer-edit" style="display: none">
-                @using (Html.BeginUmbracoForm("UpdateCustomer", "UmbracoCommercePortalOrderSurface"))
-                {
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@customerModel.FirstName">First Name:</span>
-                        <input type="text" class="order-details__field-input" asp-for="@customerModel.FirstName" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@customerModel.LastName">Last Name:</span>
-                        <input type="text" class="order-details__field-input" asp-for="@customerModel.LastName" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@customerModel.Email">Email :</span>
-                        <input type="email" class="order-details__field-input" asp-for="@customerModel.Email" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@customerModel.Telephone">Phone number :</span>
-                        <input type="tel" class="order-details__field-input" asp-for="@customerModel.Telephone" />
-                    </div>
-                    <div class="order-details__error">
-                        @Html.ValidationSummary()
-                    </div>
-                    <div class="order-details__edit-actions">
-                        <button type="submit" class="button button--primary button--small" style="margin-right: 8px;">Save</button>
-                        <button type="button" class="button button--secondary button--small" onclick="editCustomer(false)">Cancel</button>
-                    </div>
-                }
-
-            </div>
         </div>
 
         <div class="order-details__section order-details__section--editable">
@@ -118,85 +88,25 @@
                 Address
             </div>
             <div id="address-view">
-                <div class="order-details__field">
-                    <span class="order-details__field-label">Billing Address :</span>
-                    <div class="order-details__field-value">
-                        @billingAddressModel.AddressLine1 @billingAddressModel.AddressLine2, @billingAddressModel.City @billingAddressModel.ZipCode @billingAddressModel.Country
-                        <button class="order-details__edit-button" onclick="editAddress(true, true)">
-                            <svg class="order-details__edit-icon" viewBox="0 0 24 24">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                            </svg>
-                        </button>
+                @if (canCollectBillingInfo)
+                {
+                    <div class="order-details__field">
+                        <span class="order-details__field-label">Billing Address :</span>
+                        <div class="order-details__field-value">
+                            @billingAddressModel.AddressLine1 @billingAddressModel.AddressLine2, @billingAddressModel.City @billingAddressModel.ZipCode @billingAddressModel.Country
+                        </div>
                     </div>
-                </div>
-                <div class="order-details__field">
-                    <span class="order-details__field-label">Shipping Address :</span>
-                    <div class="order-details__field-value">
-                        @shippingAddressModel.AddressLine1 @shippingAddressModel.AddressLine2, @shippingAddressModel.City @shippingAddressModel.ZipCode @shippingAddressModel.Country
-                        <button class="order-details__edit-button" onclick="editAddress(true, false)">
-                            <svg class="order-details__edit-icon" viewBox="0 0 24 24">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                            </svg>
-                        </button>
+                }
+                @if (canCollectShippingInfo)
+                {
+                    <div class="order-details__field">
+                        <span class="order-details__field-label">Shipping Address :</span>
+                        <div class="order-details__field-value">
+                            @shippingAddressModel.AddressLine1 @shippingAddressModel.AddressLine2, @shippingAddressModel.City @shippingAddressModel.ZipCode @shippingAddressModel.Country
+                        </div>
                     </div>
-                </div>
+                }
             </div>
-            @using (Html.BeginUmbracoForm("UpdateBillingAddress", "UmbracoCommercePortalOrderSurface"))
-            {
-                <div id="billing-address-edit" style="display: none;">
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@billingAddressModel.AddressLine1">Address Line 1 :</span>
-                        <input type="text" class="order-details__field-input" asp-for="@billingAddressModel.AddressLine1" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@billingAddressModel.AddressLine2">Address Line 2 :</span>
-                        <input type="text" class="order-details__field-input" asp-for="@billingAddressModel.AddressLine2" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@billingAddressModel.City">City :</span>
-                        <input type="text" class="order-details__field-input" asp-for="@billingAddressModel.City" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@billingAddressModel.ZipCode">Zip Code :</span>
-                        <input type="text" class="order-details__field-input" asp-for="@billingAddressModel.ZipCode" />
-                    </div>
-                    <div class="order-details__error">
-                        @Html.ValidationSummary()
-                    </div>
-                    <div class="order-details__edit-actions">
-                        <button type="submit" class="button button--primary button--small" style="margin-right: 8px;">Save</button>
-                        <button type="button" class="button button--secondary button--small" onclick="editAddress(false, true)">Cancel</button>
-                    </div>
-                </div>
-            }
-            @using (Html.BeginUmbracoForm("UpdateShippingAddress", "UmbracoCommercePortalOrderSurface"))
-            {
-                <div id="shipping-address-edit" style="display: none;">
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@shippingAddressModel.AddressLine1">Address Line 1 :</span>
-                        <input type="text" class="order-details__field-input" asp-for="@shippingAddressModel.AddressLine1" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@shippingAddressModel.AddressLine2">Address Line 2 :</span>
-                        <input type="text" class="order-details__field-input" asp-for="@shippingAddressModel.AddressLine2" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@shippingAddressModel.City">City :</span>
-                        <input type="text" class="order-details__field-input" asp-for="@shippingAddressModel.City" />
-                    </div>
-                    <div class="order-details__field">
-                        <span class="order-details__field-label" asp-for="@shippingAddressModel.ZipCode">Zip Code :</span>
-                        <input type="text" class="order-details__field-input" asp-for="@shippingAddressModel.ZipCode" />
-                    </div>
-                    <div class="order-details__error">
-                        @Html.ValidationSummary()
-                    </div>
-                    <div class="order-details__edit-actions">
-                        <button type="submit" class="button button--primary button--small" style="margin-right: 8px;">Save</button>
-                        <button type="button" class="button button--secondary button--small" onclick="editAddress(false, false)">Cancel</button>
-                    </div>
-                </div>
-            }
         </div>
     </div>
 
@@ -210,7 +120,10 @@
 
                 <div class="order-details__product">
                     <div class="order-details__product-image" style="display: flex; justify-content: center; color: white; border-radius: 8px; overflow: hidden;">
-                        <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" class="img-fluid" />
+                        @if (image != null)
+                        {
+                            <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" class="img-fluid" />
+                        }
                     </div>
                     <div class="order-details__product-info">
                         <div class="order-details__product-name">@product.Name()</div>
@@ -275,45 +188,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    function editCustomer(enableEditMode) {
-        document.getElementById("customer-view").style.display = enableEditMode ? "none" : "block";
-        document.getElementById("customer-edit").style.display = enableEditMode ? "block" : "none";
-    }
-    function editAddress(enableEditMode, isBilling) {
-        const prefix = isBilling ? "billing" : "shipping";
-        document.getElementById("address-view").style.display = enableEditMode ? "none" : "block";
-        document.getElementById(prefix + "-address-edit").style.display = enableEditMode ? "block" : "none";
-    }
-</script>
-
-@* Toast Notifications *@
-@if (TempData["UpdateCustomerSuccess"] != null)
-{
-    @await Html.PartialAsync(
-    $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalToast.cshtml",
-        new ToastModel("success", TempData["UpdateCustomerSuccess"].ToString()))
-}
-
-@if (TempData["UpdateAddressSuccess"] != null)
-{
-    @await Html.PartialAsync(
-    $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalToast.cshtml",
-        new ToastModel("success", TempData["UpdateAddressSuccess"].ToString()))
-}
-
-@if (TempData["UpdateCustomerError"] != null)
-{
-    <script>
-        editCustomer(true);
-    </script>
-}
-
-@if (TempData["UpdateAddressError"] != null)
-{
-    <script>
-        editAddress(true);
-    </script>
-}
-
