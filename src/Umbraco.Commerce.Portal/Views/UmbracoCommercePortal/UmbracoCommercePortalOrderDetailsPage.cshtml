@@ -36,48 +36,60 @@
 
     <div class="order-details__sections">
         <div class="order-details__section">
-            <div class="order-details__section-title">Order Info</div>
+            <div class="order-details__section-title">
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderInfo.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderInfo.DefaultValue)
+            </div>
             <div class="order-details__field-row">
                 <div class="order-details__field">
-                    <span class="order-details__field-label">Order Date</span>
+                    <span class="order-details__field-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderDate.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderDate.DefaultValue)
+                    </span>
                     <div class="order-details__field-value">@order.FinalizedDate?.ToString("MMM, d yyyy")</div>
-                </div>
-                <div class="order-details__field">
-                    <span class="order-details__field-label">Delivery Date</span>
-                    <div class="order-details__field-value"></div>
                 </div>
             </div>
             <div class="order-details__field-row">
                 <div class="order-details__field">
-                    <span class="order-details__field-label">Status</span>
+                    <span class="order-details__field-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Status.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Status.DefaultValue)
+                    </span>
                     <div class="order-details__field-value">@orderStatus.Name</div>
                 </div>
                 <div class="order-details__field">
-                    <span class="order-details__field-label">Payment Status</span>
+                    <span class="order-details__field-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.PaymentStatus.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.PaymentStatus.DefaultValue)
+                    </span>
                     <div class="order-details__field-value">@order.TransactionInfo.PaymentStatus</div>
                 </div>
             </div>
             <div class="order-details__field">
-                <span class="order-details__field-label">Payment Method</span>
+                <span class="order-details__field-label">
+                    @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.PaymentMethod.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.PaymentMethod.DefaultValue)
+                </span>
                 <div class="order-details__field-value">@paymentMethod.Name</div>
             </div>
         </div>
 
         <div class="order-details__section order-details__section--editable">
             <div class="order-details__section-title">
-                Customer
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.CustomerEntries.Customer.Key, UmbracoCommercePortalConstants.Localization.CustomerEntries.Customer.DefaultValue)
             </div>
             <div id="customer-view">
                 <div class="order-details__field">
-                    <span class="order-details__field-label">Name :</span>
+                    <span class="order-details__field-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.CustomerEntries.Name.Key, UmbracoCommercePortalConstants.Localization.CustomerEntries.Name.DefaultValue) :
+                    </span>
                     <div class="order-details__field-value">@($"{customerModel.FirstName} {customerModel.LastName}") </div>
                 </div>
                 <div class="order-details__field">
-                    <span class="order-details__field-label">Email :</span>
+                    <span class="order-details__field-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.CustomerEntries.Email.Key, UmbracoCommercePortalConstants.Localization.CustomerEntries.Email.DefaultValue) :
+                    </span>
                     <div class="order-details__field-value">@customerModel.Email</div>
                 </div>
                 <div class="order-details__field">
-                    <span class="order-details__field-label">Phone number :</span>
+                    <span class="order-details__field-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.CustomerEntries.PhoneNumber.Key, UmbracoCommercePortalConstants.Localization.CustomerEntries.PhoneNumber.DefaultValue) :
+                    </span>
                     <div class="order-details__field-value">@customerModel.Telephone</div>
                 </div>
             </div>
@@ -85,13 +97,15 @@
 
         <div class="order-details__section order-details__section--editable">
             <div class="order-details__section-title">
-                Address
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.CustomerEntries.Address.Key, UmbracoCommercePortalConstants.Localization.CustomerEntries.Address.DefaultValue) :
             </div>
             <div id="address-view">
                 @if (canCollectBillingInfo)
                 {
                     <div class="order-details__field">
-                        <span class="order-details__field-label">Billing Address :</span>
+                        <span class="order-details__field-label">
+                            @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.CustomerEntries.BillingAddress.Key, UmbracoCommercePortalConstants.Localization.CustomerEntries.BillingAddress.DefaultValue) :
+                        </span>
                         <div class="order-details__field-value">
                             @billingAddressModel.AddressLine1 @billingAddressModel.AddressLine2, @billingAddressModel.City @billingAddressModel.ZipCode @billingAddressModel.Country
                         </div>
@@ -100,7 +114,9 @@
                 @if (canCollectShippingInfo)
                 {
                     <div class="order-details__field">
-                        <span class="order-details__field-label">Shipping Address :</span>
+                        <span class="order-details__field-label">
+                            @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.CustomerEntries.ShippingAddress.Key, UmbracoCommercePortalConstants.Localization.CustomerEntries.ShippingAddress.DefaultValue) :
+                        </span>
                         <div class="order-details__field-value">
                             @shippingAddressModel.AddressLine1 @shippingAddressModel.AddressLine2, @shippingAddressModel.City @shippingAddressModel.ZipCode @shippingAddressModel.Country
                         </div>
@@ -127,7 +143,9 @@
                     </div>
                     <div class="order-details__product-info">
                         <div class="order-details__product-name">@product.Name()</div>
-                        <div class="order-details__product-quantity">Quantity: @orderLine.Quantity</div>
+                        <div class="order-details__product-quantity">
+                            @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.ProductEntries.Quantity.Key, UmbracoCommercePortalConstants.Localization.ProductEntries.Quantity.DefaultValue): @orderLine.Quantity
+                        </div>
                     </div>
                     <div class="order-details__product-price">@(await orderLine.UnitPrice.Value.FormattedAsync())</div>
                 </div>
@@ -137,7 +155,9 @@
 
     <div class="order-details__summary">
         <div class="order-details__summary-row">
-            <span class="order-details__summary-label">Subtotal</span>
+            <span class="order-details__summary-label">
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Subtotal.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Subtotal.DefaultValue)
+            </span>
             <span class="order-details__summary-value">@(await order.SubtotalPrice.Value.FormattedAsync())</span>
         </div>
         @{
@@ -145,7 +165,9 @@
             if (subtotalFeesAdjustment > 0)
             {
                 <div class="order-details__summary-row">
-                    <span class="order-details__summary-label">Subtotal Fees</span>
+                    <span class="order-details__summary-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.SubtotalFees.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.SubtotalFees.DefaultValue)
+                    </span>
                     <span class="order-details__summary-value">@await subtotalFeesAdjustment.FormattedAsync(x => x.WithoutTax)</span>
                 </div>
             }
@@ -154,13 +176,17 @@
             if (subtotalDiscountAdjustment < 0)
             {
                 <div class="order-details__summary-row">
-                    <span class="order-details__summary-label">Subtotal Discount</span>
+                    <span class="order-details__summary-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.SubtotalDiscount.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.SubtotalDiscount.DefaultValue)
+                    </span>
                     <span class="order-details__summary-value">@await subtotalDiscountAdjustment.FormattedAsync(x => x.WithoutTax)</span>
                 </div>
             }
         }
         <div class="order-details__summary-row">
-            <span class="order-details__summary-label">Taxes</span>
+            <span class="order-details__summary-label">
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Taxes.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Taxes.DefaultValue)
+            </span>
             <span class="order-details__summary-value">@(await order.TotalPrice.Value.FormattedAsync(x => x.Tax))</span>
         </div>
         @{
@@ -168,7 +194,9 @@
             if (totalFeesAdjustment > 0)
             {
                 <div class="order-details__summary-row">
-                    <span class="order-details__summary-label">Net Total Fees</span>
+                    <span class="order-details__summary-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.NetTotalFees.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.NetTotalFees.DefaultValue)
+                    </span>
                     <span class="order-details__summary-value">@(await totalFeesAdjustment.FormattedAsync(x => x.WithoutTax))</span>
                 </div>
             }
@@ -177,13 +205,17 @@
             if (totalDiscountAdjustment > 0)
             {
                 <div class="order-details__summary-row">
-                    <span class="order-details__summary-label">Net Total Discount</span>
+                    <span class="order-details__summary-label">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.NetTotalDiscount.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.NetTotalDiscount.DefaultValue)
+                    </span>
                     <span class="order-details__summary-value">@(await totalDiscountAdjustment.FormattedAsync(x => x.WithoutTax))</span>
                 </div>
             }
         }
         <div class="order-details__summary-row order-details__summary-row--total">
-            <span class="order-details__summary-label">Total</span>
+            <span class="order-details__summary-label">
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Total.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Total.DefaultValue)
+            </span>
             <span class="order-details__summary-value">@(await order.TotalPrice.Value.FormattedAsync())</span>
         </div>
     </div>

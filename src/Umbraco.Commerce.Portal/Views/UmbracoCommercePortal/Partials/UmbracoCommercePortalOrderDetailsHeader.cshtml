@@ -1,7 +1,11 @@
 @inherits UmbracoViewPage<OrderReadOnly>
 
 <div class="order-details__header">
-    <h2 class="order-details__title">Your Order Details</h2>
+    <h2 class="order-details__title">
+        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.YourOrderDetails.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.YourOrderDetails.DefaultValue)
+    </h2>
     <div class="order-details__order-number">Order #@Model.OrderNumber</div>
-    <div class="order-details__subtitle">Thank you for shopping with us!</div>
+    <div class="order-details__subtitle">
+        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.ThankYou.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.ThankYou.DefaultValue)
+    </div>
 </div>

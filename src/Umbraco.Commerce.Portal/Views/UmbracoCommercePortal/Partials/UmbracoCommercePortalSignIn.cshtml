@@ -7,5 +7,8 @@
 }
 
 <p class="auth__signin">
-    Already have an account? <a class="auth__link" href="@(loginPage != null ? loginPage.Url() : "#")">Sign in</a>
+    @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.HasAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.HasAccount.DefaultValue)
+    <a class="auth__link" href="@(loginPage != null ? loginPage.Url() : "#")">
+        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.SignIn.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.SignIn.DefaultValue)
+    </a>
 </p>

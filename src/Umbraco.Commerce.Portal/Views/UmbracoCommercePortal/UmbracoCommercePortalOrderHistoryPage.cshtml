@@ -22,11 +22,15 @@
 
 @await Html.PartialAsync(
     $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalManagementHeader.cshtml",
-        new ManagementPageHeader("Order History", "View and track your past orders"))
+        new ManagementPageHeader(
+            Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderHistory.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderHistory.DefaultValue),
+            Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.ViewAndTrackPastOrders.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.ViewAndTrackPastOrders.DefaultValue)))
 
 <div class="main__content" id="mainContent">
     <div class="orders">
-        <h2 class="orders__title">Your Orders</h2>
+        <h2 class="orders__title">
+            @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.YourOrders.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.YourOrders.DefaultValue)
+        </h2>
 
         @foreach (var order in orders)
         {

@@ -7,6 +7,7 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common;
 using Umbraco.Cms.Web.Website.Controllers;
 using Umbraco.Commerce.Portal.Models;
 
@@ -15,6 +16,7 @@ namespace Umbraco.Commerce.Portal.Web.Controllers;
 public class UmbracoCommercePortalAccountSurfaceController : SurfaceController
 {
     private readonly IMemberService _memberService;
+    private readonly UmbracoHelper _umbracoHelper;
 
     public UmbracoCommercePortalAccountSurfaceController(
         IUmbracoContextAccessor umbracoContextAccessor,
@@ -23,11 +25,15 @@ public class UmbracoCommercePortalAccountSurfaceController : SurfaceController
         AppCaches appCaches,
         IProfilingLogger profilingLogger,
         IPublishedUrlProvider publishedUrlProvider,
-        IMemberService memberService)
+        IMemberService memberService,
+        UmbracoHelper umbracoHelper)
         : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
     {
         _memberService = memberService;
+        _umbracoHelper = umbracoHelper;
     }
+
+    private readonly UmbracoHelper helper;
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -51,7 +57,9 @@ public class UmbracoCommercePortalAccountSurfaceController : SurfaceController
         member.SetValue(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.ZipCode, accountModel.ZipCode);
         _memberService.Save(member);
 
-        TempData["Success"] = "Member account updated.";
+        TempData["Success"] = _umbracoHelper.GetDictionaryValueOrDefault(
+            UmbracoCommercePortalConstants.Localization.AuthEntries.MemberAccountUpdated.Key,
+            UmbracoCommercePortalConstants.Localization.AuthEntries.MemberAccountUpdated.DefaultValue);
 
         return CurrentUmbracoPage();
     }
