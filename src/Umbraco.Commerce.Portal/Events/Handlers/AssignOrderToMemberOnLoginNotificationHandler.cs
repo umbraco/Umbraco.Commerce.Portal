@@ -4,7 +4,7 @@ using Umbraco.Commerce.Common.Events;
 using Umbraco.Commerce.Core.Api;
 using Umbraco.Commerce.Extensions;
 
-namespace Umbraco.Commerce.Portal.Events;
+namespace Umbraco.Commerce.Portal.Events.Handlers;
 
 public class AssignOrderToMemberOnLoginNotificationHandler : NotificationEventHandlerBase<OnLoginNotification>
 {
