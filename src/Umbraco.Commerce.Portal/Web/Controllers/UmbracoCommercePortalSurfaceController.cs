@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -228,7 +229,11 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         }
         else
         {
-            ModelState.AddModelError("memberData", string.Join(", ", identityResult.Errors));
+            foreach (var error in identityResult.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
+
             return CurrentUmbracoPage();
         }
 
