@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Commerce.Core.Models;
@@ -79,5 +80,5 @@ internal static class PublishedContentExtensions
     }
 
     public static string GetView(this IPublishedContent content) =>
-        $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/UmbracoCommercePortal{content.ContentType.Alias}Page.cshtml";
+        $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/UmbracoCommercePortal{content.Name(Thread.CurrentThread.CurrentCulture.Name)}Page.cshtml";
 }
