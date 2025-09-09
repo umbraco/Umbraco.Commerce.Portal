@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Umbraco.Commerce.Core.Models;
 
 namespace Umbraco.Commerce.Portal.Models;
 
