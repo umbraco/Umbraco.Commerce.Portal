@@ -11,16 +11,20 @@
 
     var registerModel = new RegisterMemberModel();
     var confirmMemberModel = new ConfirmMemberModel();
+    bool isConfirmMemberView = false;
     var key = HttpContextAccessor?.HttpContext?.Request.Query["key"].ToString();
     if (!string.IsNullOrEmpty(key))
     {
+        isConfirmMemberView = true;
         confirmMemberModel.MemberId = Guid.Parse(key);
     }
 }
 
-<h2 class="auth__title auth__title-register">Create an account</h2>
+<h2 class="auth__title auth__title-register">
+    @(isConfirmMemberView ? "Confirm your account" : "Create an account")
+</h2>
 
-@if (!string.IsNullOrEmpty(key))
+@if (isConfirmMemberView)
 {
     @using (Html.BeginUmbracoForm("ConfirmMember", "UmbracoCommercePortalSurface", FormMethod.Post, new { @class = "auth__form" }))
     {
@@ -39,6 +43,10 @@
         }
         else
         {
+            <p class="auth__signin">
+                Please confirm your account by clicking the button below
+            </p>
+
             <button class="auth__button" type="submit">Confirm account</button>
         }
     }
