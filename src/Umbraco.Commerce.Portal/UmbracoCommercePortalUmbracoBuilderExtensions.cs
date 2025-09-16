@@ -1,5 +1,4 @@
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Commerce.Extensions;
@@ -15,12 +14,8 @@ public static class UmbracoCommercePortalUmbracoBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.ConfigureApplicationCookie(options =>
-        {
-            options.LoginPath = "/portal/login";
-            options.AccessDeniedPath = "/portal/login";
-            options.ReturnUrlParameter = "returnUrl";
-        });
+        // Configure Authorization
+        builder.ConfigureUmbracoPortalAuthorization();
 
         // Register pipeline
         builder.AddUmbracoCommercePortalInstallPipeline();
