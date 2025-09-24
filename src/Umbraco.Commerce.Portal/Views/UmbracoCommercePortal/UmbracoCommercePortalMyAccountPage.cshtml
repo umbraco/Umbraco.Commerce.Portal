@@ -1,127 +1,208 @@
+@using Umbraco.Commerce.Portal.Extensions
 @using Umbraco.Commerce.Portal.Models
 @using Umbraco.Commerce.Portal.Services
+@inject IUmbracoCommerceApi CommerceApi
 @inject PortalMemberService PortalMemberService
 @inherits UmbracoViewPage
 @{
-    Layout = "UmbracoCommercePortalManagementLayout.cshtml";
+	Layout = "UmbracoCommercePortalManagementLayout.cshtml";
 
-    var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
+	var store = Model.GetStore();
 
-    var accountModel = new AccountModel();
-    if (isLoggedIn)
-    {
-        accountModel = PortalMemberService.Get(Context.User!.Identity!.Name!);
-    }
+	var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
+
+	var accountModel = new AccountModel();
+	var billingInformationModel = new BillingInformationModel();
+	var changePasswordModel = new ChangePasswordModel();
+	if (isLoggedIn)
+	{
+		accountModel = PortalMemberService.Get(Context.User!.Identity!.Name!);
+		billingInformationModel = PortalMemberService.GetBillingInformation(Context.User!.Identity!.Name!);
+		changePasswordModel.MemberKey = accountModel.Id;
+	}
+
+	var countries = await CommerceApi.GetCountriesAsync(store.Id);
 }
 
 @await Html.PartialAsync(
-    $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalManagementHeader.cshtml",
+$"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalManagementHeader.cshtml",
     new ManagementPageHeader(
-        Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.MyAccount.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.MyAccount.DefaultValue),
-        Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.ManageAccountDetails.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.ManageAccountDetails.DefaultValue)))
+		Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.MyAccount.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.MyAccount.DefaultValue),
+		Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.ManageAccountDetails.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.ManageAccountDetails.DefaultValue)))
 
 <div class="main__content" id="mainContent">
-    @using (Html.BeginUmbracoForm("UpdateAccount", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "form" }))
-    {
-        <input type="hidden" asp-for="@accountModel.Id" />
+	<!-- Personal Information -->
+	@using (Html.BeginUmbracoForm("UpdateAccount", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "form" }))
+	{
+		<input type="hidden" asp-for="@accountModel.Id" />
 
-        <div class="form__section">
-            <h3 class="form__section-title">
-                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.PersonalInformation.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.PersonalInformation.DefaultValue)
-            </h3>
+		<div class="form__section">
+			<h3 class="form__section-title">
+				@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.PersonalInformation.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.PersonalInformation.DefaultValue)
+			</h3>
 
-            <div class="form__row">
-                <div class="form__field">
-                    <label asp-for="@accountModel.FirstName" class="form__label">
-                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.FirstName.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.FirstName.DefaultValue)
-                    </label>
-                    <input type="text" asp-for="@accountModel.FirstName" class="form__input" />
-                </div>
-                <div class="form__field">
-                    <label asp-for="@accountModel.LastName" class="form__label">
-                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.LastName.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.LastName.DefaultValue)
-                    </label>
-                    <input type="text" asp-for="@accountModel.LastName" class="form__input" />
-                </div>
-            </div>
+			<div class="form__row">
+				<div class="form__field">
+					<label asp-for="@accountModel.FirstName" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.FirstName.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.FirstName.DefaultValue)
+					</label>
+					<input type="text" asp-for="@accountModel.FirstName" class="form__input" />
+				</div>
+				<div class="form__field">
+					<label asp-for="@accountModel.LastName" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.LastName.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.LastName.DefaultValue)
+					</label>
+					<input type="text" asp-for="@accountModel.LastName" class="form__input" />
+				</div>
+			</div>
 
-            <div class="form__row">
-                <div class="form__field form__field--full">
-                    <label asp-for="@accountModel.Email" class="form__label">
-                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.EmailAddress.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.EmailAddress.DefaultValue)
-                    </label>
-                    <input type="email" asp-for="@accountModel.Email" class="form__input" />
-                </div>
-            </div>
-        </div>
+			<div class="form__row">
+				<div class="form__field form__field--full">
+					<label asp-for="@accountModel.Email" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.EmailAddress.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.EmailAddress.DefaultValue)
+					</label>
+					<input type="email" asp-for="@accountModel.Email" class="form__input" />
+				</div>
+			</div>
+		</div>
 
-        <div class="form__section">
-            <h3 class="form__section-title">
-                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.BillingInformation.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.BillingInformation.DefaultValue)
-            </h3>
+		@if (Context.Request.HasFormContentType && Context.Request.Form.ContainsKey("update-account-form"))
+		{
+			<div class="auth__field">
+				<div class="auth__error">
+					@Html.ValidationSummary()
+				</div>
+			</div>
+		}
 
-            <div class="form__row">
-                <div class="form__field form__field--full">
-                    <label for="country" class="form__label">
-                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.Country.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.Country.DefaultValue)
-                    </label>
-                    <select id="country" name="country" class="form__select">
-                        <option value="US">United States</option>
-                        <option value="CA">Canada</option>
-                        <option value="GB">United Kingdom</option>
-                        <option value="DE">Germany</option>
-                        <option value="FR">France</option>
-                        <option value="AU">Australia</option>
-                    </select>
-                </div>
-            </div>
+		<div class="form__actions">
+			<button type="submit" class="button button--primary" name="update-account-form">Save</button>
+		</div>
+	}
 
-            <div class="form__row">
-                <div class="form__field form__field--full">
-                    <label asp-for="@accountModel.Street" class="form__label">
-                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.StreetAddress.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.StreetAddress.DefaultValue)
-                    </label>
-                    <input type="text" asp-for="@accountModel.Street" class="form__input" />
-                </div>
-            </div>
 
-            <div class="form__row">
-                <div class="form__field">
-                    <label asp-for="@accountModel.City" class="form__label">
-                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.City.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.City.DefaultValue)
-                    </label>
-                    <input type="text" asp-for="@accountModel.City" class="form__input" />
-                </div>
-                <div class="form__field">
-                    <label asp-for="@accountModel.State" class="form__label">
-                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.State.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.State.DefaultValue)
-                    </label>
-                    <input type="text" asp-for="@accountModel.State" class="form__input" />
-                </div>
-                <div class="form__field">
-                    <label asp-for="@accountModel.ZipCode" class="form__label">
-                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.ZipCode.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.ZipCode.DefaultValue)
-                    </label>
-                    <input type="text" asp-for="@accountModel.ZipCode" class="form__input" />
-                </div>
-            </div>
-        </div>
+	<!-- Billing Information -->
+	@using (Html.BeginUmbracoForm("UpdateBillingInformation", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "form" }))
+	{
+		<div class="form__section">
+			<h3 class="form__section-title">
+				@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.BillingInformation.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.BillingInformation.DefaultValue)
+			</h3>
 
-        <div class="auth__field">
-            <div class="auth__error">
-                @Html.ValidationSummary()
-            </div>
-        </div>
+			<div class="form__row">
+				<div class="form__field form__field--full">
+					<label for="country" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.Country.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.Country.DefaultValue)
+					</label>
+					<select id="country" class="form__select" asp-for="@billingInformationModel.Country">
+						<option value=""></option>
+						@foreach (var country in countries)
+						{
+							if (billingInformationModel.Country == country.Code)
+							{
+								<option value="@country.Code" selected>
+									@country.Name
+								</option>
+							} else
+							{
+								<option value="@country.Code">
+									@country.Name
+								</option>
+							}
+						}
+					</select>
+				</div>
+			</div>
 
-        <div class="form__actions">
-            <button type="button" class="button button--secondary">Cancel</button>
-            <button type="submit" class="button button--primary">Save</button>
-        </div>
-    }
+			<div class="form__row">
+				<div class="form__field form__field--full">
+					<label asp-for="@billingInformationModel.Street" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.StreetAddress.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.StreetAddress.DefaultValue)
+					</label>
+					<input type="text" asp-for="@billingInformationModel.Street" class="form__input" />
+				</div>
+			</div>
+
+			<div class="form__row">
+				<div class="form__field">
+					<label asp-for="@billingInformationModel.City" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.City.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.City.DefaultValue)
+					</label>
+					<input type="text" asp-for="@billingInformationModel.City" class="form__input" />
+				</div>
+				<div class="form__field">
+					<label asp-for="@billingInformationModel.State" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.State.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.State.DefaultValue)
+					</label>
+					<input type="text" asp-for="@billingInformationModel.State" class="form__input" />
+				</div>
+				<div class="form__field">
+					<label asp-for="@billingInformationModel.ZipCode" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.ZipCode.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.ZipCode.DefaultValue)
+					</label>
+					<input type="text" asp-for="@billingInformationModel.ZipCode" class="form__input" />
+				</div>
+			</div>
+
+		</div>
+
+		@if (Context.Request.HasFormContentType && Context.Request.Form.ContainsKey("update-billing-form"))
+		{
+			<div class="auth__field">
+				<div class="auth__error">
+					@Html.ValidationSummary()
+				</div>
+			</div>
+		}
+
+		<div class="form__actions">
+			<button type="submit" class="button button--primary" name="update-billing-form">Save</button>
+		</div>
+	}
+
+
+	<!-- Change Password -->
+	@using (Html.BeginUmbracoForm("ChangePassword", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "form" }))
+	{
+		<input type="hidden" asp-for="@changePasswordModel.MemberKey" />
+		<div class="form__section">
+			<h3 class="form__section-title">
+				@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.ChangePassword.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.ChangePassword.DefaultValue)
+			</h3>
+
+			<div class="form__row">
+				<div class="form__field">
+					<label asp-for="@changePasswordModel.NewPassword" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.CurrentPassword.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.CurrentPassword.DefaultValue)
+					</label>
+					<input type="text" asp-for="@changePasswordModel.CurrentPassword" class="form__input" />
+				</div>
+				<div class="form__field">
+					<label asp-for="@changePasswordModel.NewPassword" class="form__label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.NewPassword.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.NewPassword.DefaultValue)
+					</label>
+					<input type="text" asp-for="@changePasswordModel.NewPassword" class="form__input" />
+				</div>
+			</div>
+		</div>
+
+		@if (Context.Request.HasFormContentType && Context.Request.Form.ContainsKey("change-password-form"))
+		{
+			<div class="auth__field">
+				<div class="auth__error">
+					@Html.ValidationSummary()
+				</div>
+			</div>
+		}
+
+		<div class="form__actions">
+			<button type="submit" class="button button--primary" name="change-password-form">Save</button>
+		</div>
+	}
 </div>
 
 @if (TempData["Success"] != null)
 {
-    @await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalToast.cshtml",
-        new ToastModel("success", TempData["Success"].ToString()))
+	@await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalToast.cshtml",
+	new ToastModel("success", TempData["Success"].ToString()))
 }

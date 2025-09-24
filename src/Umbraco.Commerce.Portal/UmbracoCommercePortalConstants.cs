@@ -152,6 +152,8 @@ public static class UmbracoCommercePortalConstants
 
             public static LocalizationEntry MemberAccountUpdated => new("UmbracoCommercePortal.Auth.MemberAccountUpdated", "Member account updated.");
 
+            public static LocalizationEntry MemberBillingInformationUpdated => new("UmbracoCommercePortal.Auth.MemberBillingInformationUpdated", "Member billing information updated.");
+
             public static LocalizationEntry ResetPasswordEmailSent => new("UmbracoCommercePortal.Auth.ResetPasswordEmailSent", "A reset password email has been sent to your email address.");
 
             public static LocalizationEntry FailedToSendConfirmationEmail => new("UmbracoCommercePortal.Auth.FailedToSendConfirmationEmail", "Failed to send confirmation email.");
@@ -172,7 +174,9 @@ public static class UmbracoCommercePortalConstants
 
             public static LocalizationEntry InvalidUsernameOrPassword => new("UmbracoCommercePortal.Auth.InvalidUsernameOrPassword", "Invalid username or password");
 
+            public static LocalizationEntry MemberCurrentPasswordIncorrect => new("UmbracoCommercePortal.Auth.MemberCurrentPasswordIncorrect", "The current password is incorrect");
 
+            public static LocalizationEntry MemberPasswordChanged => new("UmbracoCommercePortal.Auth.MemberPasswordChanged", "Password changed");
         }
 
         public static class OrderInfoEntries
@@ -260,6 +264,8 @@ public static class UmbracoCommercePortalConstants
 
             public static LocalizationEntry BillingInformation => new("UmbracoCommercePortal.Account.BillingInformation", "Billing Information");
 
+            public static LocalizationEntry ShippingInformation => new("UmbracoCommercePortal.Account.ShippingInformation", "Shipping Information");
+
             public static LocalizationEntry Country => new("UmbracoCommercePortal.Account.Country", "Country");
 
             public static LocalizationEntry StreetAddress => new("UmbracoCommercePortal.Account.StreetAddress", "Street Address");
@@ -269,6 +275,12 @@ public static class UmbracoCommercePortalConstants
             public static LocalizationEntry State => new("UmbracoCommercePortal.Account.State", "State / Province");
 
             public static LocalizationEntry ZipCode => new("UmbracoCommercePortal.Account.ZipCode", "ZIP / Postal code");
+
+            public static LocalizationEntry ChangePassword => new("UmbracoCommercePortal.Account.ChangePassword", "Change Password");
+
+            public static LocalizationEntry CurrentPassword => new("UmbracoCommercePortal.Account.CurrentPassword", "Current Password");
+
+            public static LocalizationEntry NewPassword => new("UmbracoCommercePortal.Account.NewPassword", "New Password");
         }
 
         public static class ManagementEntries

@@ -9,13 +9,21 @@ public static class PortalMemberExtensions
     public static AccountModel ToModel(this IMember member)
     {
         ArgumentNullException.ThrowIfNull(member, nameof(member));
-
         return new AccountModel
         {
             Id = member.Key,
             Email = member.Email,
             FirstName = member.GetValue<string>(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.FirstName) ?? string.Empty,
             LastName = member.GetValue<string>(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.LastName) ?? string.Empty,
+        };
+    }
+
+    public static BillingInformationModel ToBillingInformationModel(this IMember member)
+    {
+        ArgumentNullException.ThrowIfNull(member, nameof(member));
+        return new BillingInformationModel
+        {
+            Id = member.Key,
             Country = member.GetValue<string>(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.Country) ?? string.Empty,
             Street = member.GetValue<string>(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.Street) ?? string.Empty,
             City = member.GetValue<string>(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.City) ?? string.Empty,

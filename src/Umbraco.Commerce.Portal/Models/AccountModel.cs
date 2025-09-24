@@ -16,14 +16,24 @@ public class AccountModel
 
     [Required]
     public string LastName { get; set; } = string.Empty;
+}
 
-    public string Country { get; set; }
+public class BillingInformationModel
+{
+    public Guid Id { get; set; }
 
-    public string Street { get; set; }
+    [Required]
+    public string Country { get; set; } = string.Empty;
 
-    public string City { get; set; }
+    [Required]
+    public string Street { get; set; } = string.Empty;
 
-    public string State { get; set; }
+    [Required]
+    public string City { get; set; } = string.Empty;
 
-    public string ZipCode { get; set; }
+    [Required]
+    public string State { get; set; } = string.Empty;
+
+    [Required]
+    public string ZipCode { get; set; } = string.Empty;
 }

@@ -181,6 +181,7 @@ body {
   background-color: #ffffff;
   border-radius: 8px;
   padding: 32px;
+  margin-top: 10px;
   border: 1px solid #e0e6ed;
 }
 
@@ -265,6 +266,38 @@ body {
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid #e5e7eb;
+}
+
+.address__view {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.address__view .form__section-title {
+  margin: 0;
+}
+
+.address__edit-button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.address__edit-button:hover {
+  background-color: #eff6ff;
+}
+
+.address__edit-icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
 }
 
 /* Button Block */
@@ -484,27 +517,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.order-details__edit-button {
-  background: none;
-  border: none;
-  color: #3b82f6;
-  cursor: pointer;
-  font-size: 12px;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-  .order-details__edit-button:hover {
-    background-color: #eff6ff;
-  }
-
-.order-details__edit-icon {
-  width: 14px;
-  height: 14px;
-  fill: currentColor;
 }
 
 .order-details__field {

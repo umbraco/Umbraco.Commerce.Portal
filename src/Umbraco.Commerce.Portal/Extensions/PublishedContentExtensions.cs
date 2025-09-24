@@ -35,7 +35,7 @@ internal static class PublishedContentExtensions
                .Descendants()
                .FirstOrDefault(x => x.ContentType.Alias == contentTypeAlias);
 
-        return null;
+        return accountPage;
     }
 
     public static IPublishedContent? GetPortalContainerSettingByAlias(this IPublishedContent content, string alias) =>
@@ -80,5 +80,5 @@ internal static class PublishedContentExtensions
     }
 
     public static string GetView(this IPublishedContent content) =>
-        $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/UmbracoCommercePortal{content.Name(Thread.CurrentThread.CurrentCulture.Name)}Page.cshtml";
+        $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/UmbracoCommercePortal{content.Name(Thread.CurrentThread.CurrentCulture.Name).Replace(" ", "")}Page.cshtml";
 }

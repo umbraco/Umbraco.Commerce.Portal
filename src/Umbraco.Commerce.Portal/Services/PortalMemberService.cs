@@ -11,4 +11,10 @@ public class PortalMemberService(IMemberService memberService)
         var member = memberService.GetByEmail(email);
         return member.ToModel();
     }
+
+    public BillingInformationModel GetBillingInformation(string email)
+    {
+        var member = memberService.GetByEmail(email);
+        return member.ToBillingInformationModel();
+    }
 }
