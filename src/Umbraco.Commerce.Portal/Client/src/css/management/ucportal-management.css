@@ -41,7 +41,6 @@ body {
 }
 
 .sidebar__logo-icon img {
-  border-radius: 8px;
   margin-right: 12px;
   display: flex;
   align-items: center;
