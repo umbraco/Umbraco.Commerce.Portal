@@ -14,9 +14,6 @@ public static class UmbracoCommercePortalUmbracoBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        // Configure Authorization
-        builder.ConfigureUmbracoPortalAuthorization();
-
         // Register pipeline
         builder.AddUmbracoCommercePortalInstallPipeline();
 
