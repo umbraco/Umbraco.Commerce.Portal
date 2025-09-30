@@ -9,7 +9,7 @@ public class PortalMemberService(IMemberService memberService)
     public AccountModel Get(string email)
     {
         var member = memberService.GetByEmail(email);
-        return member.ToModel();
+        return member.ToAccountModel();
     }
 
     public BillingInformationModel GetBillingInformation(string email)

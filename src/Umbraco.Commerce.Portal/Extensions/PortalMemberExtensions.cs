@@ -6,7 +6,7 @@ namespace Umbraco.Commerce.Portal.Extensions;
 
 public static class PortalMemberExtensions
 {
-    public static AccountModel ToModel(this IMember member)
+    public static AccountModel ToAccountModel(this IMember member)
     {
         ArgumentNullException.ThrowIfNull(member, nameof(member));
         return new AccountModel

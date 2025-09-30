@@ -8,6 +8,7 @@ public class ChangePasswordModel
     public Guid MemberKey { get; set; }
 
     [Required]
+    [DataType(DataType.Password)]
     public string CurrentPassword { get; set; } = string.Empty;
 
     [Required]
