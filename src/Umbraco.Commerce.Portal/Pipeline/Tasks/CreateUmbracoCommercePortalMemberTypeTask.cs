@@ -14,17 +14,50 @@ namespace Umbraco.Commerce.Portal.Pipeline.Tasks;
 
 internal class CreateUmbracoCommercePortalMemberTypeTask(
     IDataTypeService dataTypeService,
+    IMemberGroupService memberGroupService,
     IMemberTypeService memberTypeService,
     IShortStringHelper shortStringHelper)
     : PipelineTaskBase<InstallPipelineContext>
 {
     public override async Task<PipelineResult> ExecuteAsync(PipelineArgs args, CancellationToken cancellationToken)
     {
+        var createMemberGroupAttempt = await CreateMemberGroupAsync();
+        if (!createMemberGroupAttempt.Success)
+        {
+            return Fail($"Failed to create {UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMemberGroup} member group.");
+        }
+
         if (memberTypeService.Get(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMemberType) is not null)
         {
             return Ok();
         }
 
+        var createMemberTypeAttempt = await CreateMemberTypeAsync();
+        if (!createMemberTypeAttempt.Success)
+        {
+            return Fail(createMemberTypeAttempt.Exception);
+        }
+
+        return Ok();
+    }
+
+    private async Task<Attempt<IMemberGroup?, MemberGroupOperationStatus>> CreateMemberGroupAsync()
+    {
+        var memberGroup = await memberGroupService.GetByNameAsync(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMemberGroup);
+        if (memberGroup is not null)
+        {
+            return Attempt.SucceedWithStatus(MemberGroupOperationStatus.Success, memberGroup);
+        }
+
+        memberGroup = new MemberGroup
+        {
+            Name = UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMemberGroup,
+        };
+        return await memberGroupService.CreateAsync(memberGroup);
+    }
+
+    private async Task<Attempt<ContentTypeOperationStatus>> CreateMemberTypeAsync()
+    {
         var textStringDataType = new Lazy<Task<IDataType?>>(() => dataTypeService.GetAsync(UmbracoConstants.DataTypes.Guids.TextstringGuid));
         var dropdownDataType = new Lazy<Task<IDataType?>>(() => dataTypeService.GetAsync(UmbracoConstants.DataTypes.Guids.DropdownGuid));
 
@@ -97,13 +130,7 @@ internal class CreateUmbracoCommercePortalMemberTypeTask(
             }
         ]);
 
-        Attempt<ContentTypeOperationStatus> createMemberAttempt = await memberTypeService.CreateAsync(memberType, UmbracoConstants.Security.SuperUserKey);
-        if (!createMemberAttempt.Success)
-        {
-            return Fail(memberType, createMemberAttempt.Exception!);
-        }
-
-        return Ok();
+        return await memberTypeService.CreateAsync(memberType, UmbracoConstants.Security.SuperUserKey);
     }
 
     private PropertyType CreatePropertyType(IDataType? dataType, Action<PropertyType> config)

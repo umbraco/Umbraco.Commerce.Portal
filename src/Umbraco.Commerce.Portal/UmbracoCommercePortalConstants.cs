@@ -27,6 +27,8 @@ public static class UmbracoCommercePortalConstants
         {
             public const string PortalMemberType = "ucpMember";
 
+            public const string PortalMemberGroup = "Commerce Portal";
+
             public const string PortalContainerPage = "ucpPortalContainerPage";
 
             public const string PortalAuthPage = "ucpPortalAuthPage";

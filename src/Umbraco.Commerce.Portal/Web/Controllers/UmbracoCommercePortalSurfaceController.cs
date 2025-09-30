@@ -245,6 +245,9 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             member.SetValue(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.LastName, registerModel.LastName);
             _memberService.Save(member);
 
+            // Assign portal member role
+            _memberService.AssignRole(member.Username, UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMemberGroup);
+
             // Send confirm member email
             var template = await _commerceApi.GetEmailTemplateAsync(
                 CurrentPage.GetStore().Id,

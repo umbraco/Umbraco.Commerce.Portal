@@ -20,7 +20,8 @@ internal static class CompositionExtensions
             .Add<ConfigureUmbracoCommercePortalStoreTask>()
             .Add<CreateUmbracoCommercePortalMemberTypeTask>()
             .Add<CreateUmbracoCommercePortalDocumentTypesTask>()
-            .Add<CreateUmbracoCommercePortalNodesTask>();
+            .Add<CreateUmbracoCommercePortalNodesTask>()
+            .Add<ConfigureUmbracoCommercePortalPublicAccessTask>();
 
         return builder;
     }
