@@ -6,6 +6,7 @@ import { OpenApiConfig } from "./backoffice/apis/install.api";
 
 import "./css/auth/ucportal-auth.css";
 import "./css/management/ucportal-management.css";
+import "./css/management/ucportal-order-status.css";
 
 const manifests: Array<UmbExtensionManifest> = [
   ...dashboardManifest,

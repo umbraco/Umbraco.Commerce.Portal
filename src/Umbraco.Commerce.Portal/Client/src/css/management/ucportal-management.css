@@ -400,7 +400,7 @@ body {
   font-weight: 500;
   padding: 4px 8px;
   border-radius: 4px;
-  /*background-color: #10b981;*/
+  background-color: var(--order-status-color);
   color: #ffffff;
 }
 
