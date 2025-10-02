@@ -1,24 +1,27 @@
 @using Umbraco.Commerce.Portal.Extensions;
 @inherits UmbracoViewPage
 @{
-    Layout = null;
+	Layout = null;
 }
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>@Model.Name</title>
-    <link rel="stylesheet" href="/App_Plugins/UmbracoCommercePortal/umbraco-commerce-portal.css" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>@Model.Name</title>
+	<link rel="stylesheet" href="/App_Plugins/UmbracoCommercePortal/umbraco-commerce-portal.css" />
+	
 </head>
 <body>
-    <div class="portal">
-        <!-- Sidebar Block -->
-        @await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalManagementSidebar.cshtml")
+	<div class="portal">
+		<!-- Sidebar Block -->
+		@await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalManagementSidebar.cshtml")
 
-        <!-- Main Content Block -->
-        <main class="main">
-            @RenderBody()
-        </main>
-    </div>
+		<!-- Main Content Block -->
+		<main class="main">
+			@RenderBody()
+		</main>
+	</div>
 </body>
 </html>

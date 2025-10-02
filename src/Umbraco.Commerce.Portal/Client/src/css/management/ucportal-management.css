@@ -1,3 +1,4 @@
+/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
@@ -37,10 +38,10 @@ body {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #6366f1;
 }
 
-.sidebar__logo-icon img {
+.sidebar__logo-icon {
+  border-radius: 8px;
   margin-right: 12px;
   display: flex;
   align-items: center;
@@ -180,7 +181,7 @@ body {
   background-color: #ffffff;
   border-radius: 8px;
   padding: 32px;
-  margin-top: 10px;
+  margin-bottom: 10px;
   border: 1px solid #e0e6ed;
 }
 
@@ -267,38 +268,6 @@ body {
   border-top: 1px solid #e5e7eb;
 }
 
-.address__view {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.address__view .form__section-title {
-  margin: 0;
-}
-
-.address__edit-button {
-  background: none;
-  border: none;
-  color: #3b82f6;
-  cursor: pointer;
-  font-size: 12px;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  flex-shrink: 0;
-}
-
-.address__edit-button:hover {
-  background-color: #eff6ff;
-}
-
-.address__edit-icon {
-  width: 14px;
-  height: 14px;
-  fill: currentColor;
-}
-
 /* Button Block */
 .button {
   padding: 12px 24px;
@@ -341,10 +310,9 @@ body {
   font-size: 12px;
 }
 
-/* Orders History Block */
+/* Orders Block */
 .orders {
   background-color: #ffffff;
-  padding: 15px;
 }
 
 .orders__title {
@@ -355,15 +323,15 @@ body {
 }
 
 .orders__group {
-  margin-bottom: 32px;
-  border-radius: 8px;
-  padding: 32px;
+  margin-bottom: 20px;
+  padding: 20px;
   border: 1px solid #e0e6ed;
+  border-radius: 8px;
 }
 
-  .orders__group:last-child {
-    margin-bottom: 0;
-  }
+.orders__group:last-child {
+  margin-bottom: 0;
+}
 
 .orders__header {
   display: flex;
@@ -516,6 +484,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.order-details__edit-button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+  .order-details__edit-button:hover {
+    background-color: #eff6ff;
+  }
+
+.order-details__edit-icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
 }
 
 .order-details__field {
@@ -672,35 +661,4 @@ body {
   height: 16px;
   margin-right: 8px;
   fill: currentColor;
-}
-
-.order-details__error {
-  display: flex;
-  justify-content: center;
-  color: #dc2626;
-  margin-top: 5px;
-}
-
-.order-details__edit-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 12px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    position: relative;
-    height: auto;
-  }
-
-  .main {
-    margin-left: 0;
-    padding: 16px;
-  }
-
-  .portal {
-    flex-direction: column;
-  }
 }

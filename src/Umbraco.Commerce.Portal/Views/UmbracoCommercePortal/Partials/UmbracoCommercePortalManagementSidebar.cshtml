@@ -8,10 +8,10 @@
     var myAccountPage = Model.GetPortalContainerPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage, null);
     var orderHistoryPage = Model.GetPortalContainerPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderHistoryPage, null);
 
-    var logo = Html.Raw(Model.GetStoreLogo(50, 50));
+    var logo = Html.Raw(Model.GetStoreLogo(100, 100));
 }
 
-<aside class="sidebar">
+<aside id="sidebar" class="sidebar">
     <div class="sidebar__header">
         <a href="@(homePage != null ? homePage.Url() : "/")" class="sidebar__logo">
             <div class="sidebar__logo-icon">
@@ -54,3 +54,36 @@
         @await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalSignOut.cshtml")
     </div>
 </aside>
+
+<!-- Mobile Header -->
+<header class="mobile-header">
+	<a href="@(homePage != null ? homePage.Url() : "/")" class="mobile-header__logo">
+		<div class="mobile-header__logo-icon">
+			@if (!string.IsNullOrEmpty(logo.ToString()))
+			{
+				<img src="@logo" alt="@store.Name" />
+			}
+			else
+			{
+				<text>@store.Name</text>
+			}
+		</div>
+	</a>
+	<button class="mobile-header__menu-button" id="mobileMenuButton" onclick="toggleSidebar()">
+		<svg class="mobile-header__menu-icon" viewBox="0 0 24 24">
+			<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+		</svg>
+	</button>
+</header>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<script>
+	function toggleSidebar() {
+		const sidebar = document.getElementById("sidebar");
+		const mobileOverlay = document.getElementById("mobileOverlay");
+		sidebar.classList.toggle("sidebar--open");
+		mobileOverlay.classList.toggle("mobile-overlay--visible");
+	}
+</script>
