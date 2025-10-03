@@ -1,8 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.DependencyInjection;
-using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Commerce.Core;
 using Umbraco.Commerce.Extensions;
 using Umbraco.Commerce.Portal.Pipeline;
