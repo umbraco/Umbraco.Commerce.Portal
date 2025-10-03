@@ -165,13 +165,15 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             return CurrentUmbracoPage();
         }
 
+        var store = CurrentPage.GetStore();
+
         // Send reset password email
         var template = await _commerceApi.GetEmailTemplateAsync(
             CurrentPage.GetStore().Id,
             UmbracoCommercePortalConstants.EmailTemplates.ResetPasswordEmailTemplate.Key);
         var result = await _commerceApi.SendEmailAsync(
             template,
-            new EmailModel(member.Name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?key={member.Key}"),
+            new EmailModel(member.Name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?key={member.Key}", store.Id),
             member.Email,
             "en-US");
         if (!result)
@@ -248,13 +250,15 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             // Assign portal member role
             _memberService.AssignRole(member.Username, UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMemberGroup);
 
+            var store = CurrentPage.GetStore();
+
             // Send confirm member email
             var template = await _commerceApi.GetEmailTemplateAsync(
                 CurrentPage.GetStore().Id,
                 UmbracoCommercePortalConstants.EmailTemplates.ConfirmMemberEmailTemplate.Key);
             var result = await _commerceApi.SendEmailAsync(
                 template,
-                new EmailModel(name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?key={member.Key}"),
+                new EmailModel(name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?key={member.Key}", store.Id),
                 registerModel.Email,
                 "en-US");
             if (!result)
