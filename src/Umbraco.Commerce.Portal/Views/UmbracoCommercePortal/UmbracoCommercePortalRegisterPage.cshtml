@@ -36,7 +36,7 @@
         {
             <text>
                 <p class="auth__signin">
-                    <a class="auth__link" href="@(loginPage != null ? loginPage.Url() : "#")">
+					<a class="auth__link ucp-text-color" href="@(loginPage != null ? loginPage.Url() : "#")">
                         @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.LogIn.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.LogIn.DefaultValue)
                     </a>
                 </p>
@@ -51,7 +51,7 @@
                 @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.PleaseConfirmAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.PleaseConfirmAccount.DefaultValue)
             </p>
 
-            <button class="auth__button" type="submit">@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmAccount.DefaultValue)</button>
+			<button class="auth__button ucp-bg-color" type="submit">@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmAccount.DefaultValue)</button>
         }
     }
 }
@@ -106,7 +106,7 @@ else
             </div>
         </div>
 
-        <button class="auth__button" type="submit">
+		<button class="auth__button ucp-bg-color" type="submit">
             @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.CreateAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.CreateAccount.DefaultValue)
         </button>
 

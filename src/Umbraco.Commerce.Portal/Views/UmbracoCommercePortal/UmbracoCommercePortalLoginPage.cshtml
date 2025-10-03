@@ -45,7 +45,7 @@
             <label class="auth__label" asp-for="@loginModel.Password">
                 @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.Password.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.Password.DefaultValue)
             </label>
-            <a class="auth__link auth__link--right" href="@(forgotPasswordPage != null ? forgotPasswordPage.Url() : "#")">
+			<a class="auth__link auth__link--right ucp-text-color" href="@(forgotPasswordPage != null ? forgotPasswordPage.Url() : "#")">
                 @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.ForgotPassword.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.ForgotPassword.DefaultValue)
             </a>
         </div>
@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <button class="auth__button" type="submit">
+	<button class="auth__button ucp-bg-color" type="submit">
         @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.SignIn.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.SignIn.DefaultValue)
     </button>
 }

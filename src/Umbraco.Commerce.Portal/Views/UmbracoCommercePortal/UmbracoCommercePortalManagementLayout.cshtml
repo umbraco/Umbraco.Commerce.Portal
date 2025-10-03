@@ -2,6 +2,8 @@
 @inherits UmbracoViewPage
 @{
 	Layout = null;
+
+	var themeColor = Model.GetThemeColor();
 }
 
 <!DOCTYPE html>
@@ -11,7 +13,16 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>@Model.Name</title>
 	<link rel="stylesheet" href="/App_Plugins/UmbracoCommercePortal/umbraco-commerce-portal.css" />
-	
+
+	<style>
+		.ucp-text-color {
+			color: @(themeColor);
+		}
+
+		.ucp-bg-color {
+			background-color: @(themeColor);
+		}
+	</style>
 </head>
 <body>
 	<div class="portal">
