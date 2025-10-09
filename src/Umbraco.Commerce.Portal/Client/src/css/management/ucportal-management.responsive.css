@@ -26,10 +26,6 @@
     padding-top: 80px;
   }
 
-  .main__content {
-      padding: 10px;
-  }
-
   .main__header {
     margin-bottom: 24px;
   }
@@ -47,13 +43,8 @@
     margin-bottom: 24px;
   }
 
-  .orders {
-    padding: 24px;
-  }
-
   .orders__title {
     font-size: 20px;
-    margin-bottom: 24px;
   }
 
   .orders__info {
@@ -168,10 +159,6 @@
     padding-top: 80px;
   }
 
-  .main__content {
-      padding: 10px;
-  }
-
   .main__title {
     font-size: 20px;
   }
@@ -179,10 +166,6 @@
   .form {
     padding: 16px;
     margin-bottom: 10px;
-  }
-
-  .orders {
-    padding: 16px;
   }
 
   .orders__product-specs {

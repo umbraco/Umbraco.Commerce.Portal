@@ -148,14 +148,6 @@ body {
   font-size: 16px;
 }
 
-.main__content {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e6ed;
-}
-
 /* Card Block */
 .card {
   background-color: #ffffff;
@@ -311,15 +303,11 @@ body {
 }
 
 /* Orders Block */
-.orders {
-  background-color: #ffffff;
-}
-
 .orders__title {
   font-size: 24px;
   font-weight: 600;
   color: #1e293b;
-  margin-bottom: 32px;
+  margin-bottom: 10px;
 }
 
 .orders__group {
@@ -430,7 +418,7 @@ body {
 .order-details {
   background-color: #ffffff;
   border-radius: 8px;
-  padding: 32px;
+  padding: 16px;
   border: 1px solid #e0e6ed;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
