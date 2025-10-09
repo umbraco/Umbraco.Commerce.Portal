@@ -75,12 +75,13 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         if (signInResult.Succeeded)
         {
             var store = CurrentPage.GetStore();
+            var myAccountPage = CurrentPage.GetPortalContainerPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage, null);
 
             await EventBus.DispatchAsync(new OnLoginNotification(member, store.Id));
 
             TempData["LoginSuccess"] = true;
 
-            return Redirect(loginModel.RedirectUrl!);
+            return Redirect(myAccountPage.Url());
         }
 
         if (signInResult.IsLockedOut)
