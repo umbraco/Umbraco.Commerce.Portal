@@ -61,7 +61,7 @@ internal static class PublishedContentExtensions
         var storeThemeColor = store.ThemeColor;
         return !string.IsNullOrWhiteSpace(storeThemeColor)
             ? storeThemeColor
-            : "#000000";
+            : "#2563eb";
     }
 
     public static string GetStoreLogo(this IPublishedContent content, int width, int height)
