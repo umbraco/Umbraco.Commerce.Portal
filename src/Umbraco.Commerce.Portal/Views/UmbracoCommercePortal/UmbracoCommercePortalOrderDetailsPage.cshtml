@@ -135,7 +135,7 @@
                 var image = product.Value<IPublishedContent>("image");
 
                 <div class="order-details__product">
-                    <div class="order-details__product-image" style="display: flex; justify-content: center; color: white; border-radius: 8px; overflow: hidden;">
+                    <div class="order-details__product-image orders__product-image--placeholder" style="display: flex; justify-content: center; color: white; border-radius: 8px; overflow: hidden;">
                         @if (image != null)
                         {
                             <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" class="img-fluid" />

@@ -21,9 +21,9 @@ public static class UmbracoCommercePortalConstants
             "~/Views/Templates/Email/UmbracoCommercePortalResetPasswordEmail.cshtml");
     }
 
-    public static class  DataTypes
+    public static class DataTypes
     {
-        public const string CountryDataTypeName = "[Umbraco Commerce Portal] Country Dropdown";
+        public const string CountryPickerDataTypeName = "[Umbraco Commerce Portal] Country Picker";
     }
 
     public static class ContentTypes

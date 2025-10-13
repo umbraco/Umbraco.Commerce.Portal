@@ -69,10 +69,10 @@ internal class CreateUmbracoCommercePortalMemberTypeTask(
     private async Task<Attempt<ContentTypeOperationStatus>> CreateMemberTypeAsync(Guid storeId)
     {
         var textStringDataType = new Lazy<Task<IDataType?>>(() => dataTypeService.GetAsync(UmbracoConstants.DataTypes.Guids.TextstringGuid));
-        var countryDropDownDataType = await dataTypeService.GetAsync(UmbracoCommercePortalConstants.DataTypes.CountryDataTypeName);
-        if (countryDropDownDataType is null)
+        var countryPickerDataType = await dataTypeService.GetAsync(UmbracoCommercePortalConstants.DataTypes.CountryPickerDataTypeName);
+        if (countryPickerDataType is null)
         {
-            countryDropDownDataType = await CreateCountryDataTypeAsync(storeId);
+            countryPickerDataType = await CreateCountryPickerDataTypeAsync(storeId);
         }
 
         PropertyType[] memberTypeProps = [
@@ -90,7 +90,7 @@ internal class CreateUmbracoCommercePortalMemberTypeTask(
                 x.Description = "Member last name";
                 x.SortOrder = 50;
             }),
-            CreatePropertyType(countryDropDownDataType, x =>
+            CreatePropertyType(countryPickerDataType, x =>
             {
                 x.Alias = UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.Country;
                 x.Name = "Country";
@@ -147,29 +147,22 @@ internal class CreateUmbracoCommercePortalMemberTypeTask(
         return await memberTypeService.CreateAsync(memberType, UmbracoConstants.Security.SuperUserKey);
     }
 
-    private async Task<IDataType?> CreateCountryDataTypeAsync(Guid storeId)
+    private async Task<IDataType?> CreateCountryPickerDataTypeAsync(Guid storeId)
     {
-        var countries = await commerceApi.GetCountriesAsync(storeId);
-
-        // Get Default Umbraco Dropdown data type
-        var dropdownDataType = new Lazy<Task<IDataType?>>(() => dataTypeService.GetAsync(UmbracoConstants.DataTypes.Guids.DropdownGuid));
-        var ddt = await dropdownDataType.Value;
-        var countryDropdownDataType = new DataType(propertyEditorCollection[Constants.PropertyEditors.Aliases.DropDownListFlexible], configurationEditorJsonSerializer)
+        var countryPickerDataType = new DataType(propertyEditorCollection[Cms.Constants.PropertyEditors.Aliases.StoreEntityPicker], configurationEditorJsonSerializer)
         {
-            Editor = ddt.Editor,
-            EditorUiAlias = ddt.EditorUiAlias,
+            EditorUiAlias = "Uc.PropertyEditorUi.StoreEntityPicker",
             ConfigurationData = new Dictionary<string, object>
             {
-                { "items",  countries.Select(x => x.Name) },
+                { "entityType",  "Country" },
+                { "storeId", storeId.ToString() }
             },
-            Name = UmbracoCommercePortalConstants.DataTypes.CountryDataTypeName,
-            DatabaseType = ValueStorageType.Ntext,
-            ParentId = Constants.System.Root,
+            Name = UmbracoCommercePortalConstants.DataTypes.CountryPickerDataTypeName,
             CreateDate = DateTime.UtcNow,
         };
-        var result = await dataTypeService.CreateAsync(countryDropdownDataType, Constants.Security.SuperUserKey);
+        var attempt = await dataTypeService.CreateAsync(countryPickerDataType, Constants.Security.SuperUserKey);
 
-        return result.Success ? result.Result : null;
+        return attempt.Success ? attempt.Result : null;
     }
 
     private PropertyType CreatePropertyType(IDataType? dataType, Action<PropertyType> config)
