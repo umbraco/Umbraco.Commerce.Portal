@@ -220,6 +220,10 @@ public static class UmbracoCommercePortalConstants
 
             public static LocalizationEntry NetTotalDiscount => new("UmbracoCommercePortal.OrderInfo.NetTotalDiscount", "Net Total Discount");
 
+            public static LocalizationEntry GiftCard => new("UmbracoCommercePortal.OrderInfo.GiftCard", "Gift Card");
+
+            public static LocalizationEntry TransactionFee => new("UmbracoCommercePortal.OrderInfo.TransactionFee", "Transaction Fee");
+
             public static LocalizationEntry Total => new("UmbracoCommercePortal.OrderInfo.Total", "Total");
 
             public static LocalizationEntry TotalAmount => new("UmbracoCommercePortal.OrderInfo.TotalAmount", "Total Amount");
@@ -231,6 +235,8 @@ public static class UmbracoCommercePortalConstants
             public static LocalizationEntry ThankYou => new("UmbracoCommercePortal.OrderInfo.ThankYou", "Thank you for shopping with us!");
 
             public static LocalizationEntry BackToOrders => new("UmbracoCommercePortal.OrderInfo.BackToOrders", "Back to Orders");
+
+            public static LocalizationEntry Comments => new("UmbracoCommercePortal.OrderInfo.Comments", "Comments");
         }
 
         public static class CustomerEntries
@@ -253,6 +259,8 @@ public static class UmbracoCommercePortalConstants
         public static class ProductEntries
         {
             public static LocalizationEntry Quantity => new("UmbracoCommercePortal.Product.Quantity", "Quantity");
+
+            public static LocalizationEntry Attributes => new("UmbracoCommercePortal.Product.Attributes", "Attributes");
         }
 
         public static class AccountEntries

@@ -143,6 +143,19 @@
                     </div>
                     <div class="order-details__product-info">
                         <div class="order-details__product-name">@product.Name()</div>
+						<div class="order-details__product-quantity">
+                            SKU: @orderLine.Sku
+                        </div>
+						@if (orderLine.Attributes.Count > 0)
+						{
+							<div class="order-details__product-quantity">
+								@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.ProductEntries.Attributes.Key, UmbracoCommercePortalConstants.Localization.ProductEntries.Attributes.DefaultValue):
+								@foreach (var attr in orderLine.Attributes)
+								{
+									<text> / @(attr.Value)</text>
+								}
+							</div>
+						}
                         <div class="order-details__product-quantity">
                             @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.ProductEntries.Quantity.Key, UmbracoCommercePortalConstants.Localization.ProductEntries.Quantity.DefaultValue): @orderLine.Quantity
                         </div>
@@ -158,7 +171,7 @@
             <span class="order-details__summary-label">
                 @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Subtotal.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Subtotal.DefaultValue)
             </span>
-            <span class="order-details__summary-value">@(await order.SubtotalPrice.Value.FormattedAsync())</span>
+            <span class="order-details__summary-value">@(await order.SubtotalPrice.WithPreviousAdjustments.FormattedAsync(x => x.WithoutTax))</span>
         </div>
         @{
             var subtotalFeesAdjustment = order.SubtotalPrice.Adjustments.Where(adj => adj.Price.WithTax > 0).Sum(order.CurrencyId);
@@ -211,6 +224,27 @@
                     <span class="order-details__summary-value">@(await totalDiscountAdjustment.FormattedAsync(x => x.WithoutTax))</span>
                 </div>
             }
+
+			var totalGiftCardAdjustment = order.GetTotalAmountAdjustmentByType<GiftCardAdjustment>();
+			if (totalGiftCardAdjustment != 0)
+			{
+				<div class="order-details__summary-row">
+					<span class="order-details__summary-label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.GiftCard.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.GiftCard.DefaultValue)
+					</span>
+					<span class="order-details__summary-value">@(await totalGiftCardAdjustment.FormattedAsync())</span>
+				</div>
+			}
+
+			if (order.TransactionInfo.TransactionFee.Value > 0M)
+			{
+				<div class="order-details__summary-row">
+					<span class="order-details__summary-label">
+						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.TransactionFee.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.TransactionFee.DefaultValue)
+					</span>
+					<span class="order-details__summary-value">@(await order.TransactionInfo.TransactionFee.FormattedAsync())</span>
+				</div>
+			}
         }
         <div class="order-details__summary-row order-details__summary-row--total">
             <span class="order-details__summary-label">
