@@ -1,0 +1,75 @@
+@using Umbraco.Commerce.Portal.Models;
+@using Umbraco.Commerce.Web.ViewEngines;
+
+@inherits UmbracoCommerceRazorTemplateView<EmailModel>
+@{
+	var store = await UmbracoCommerceApi.GetStoreAsync(Model.StoreId);
+
+	var storeThemeColor = store.ThemeColor;
+	var ucpThemeColor = !string.IsNullOrWhiteSpace(storeThemeColor)
+		? storeThemeColor
+		: "#000000";
+}
+
+<style type="text/css">
+	#ucp, #ucp td, #ucp p {
+		font-family: sans-serif;
+		font-size: 14px;
+		line-height: 18px;
+		color: #5f6a70;
+	}
+
+	#ucp td {
+		vertical-align: top;
+	}
+
+	.confirm-button {
+		display: inline-block;
+		background-color: @ucpThemeColor;
+		color: #ffffff !important;
+		text-decoration: none;
+		padding: 12px 24px;
+		border-radius: 5px;
+		font-weight: bold;
+		margin: 10px 0;
+	}
+</style>
+<div id="ucp">
+	<table style="background-color: #f5f5f5; width: 100%;">
+		<tr>
+			<td style="padding: 40px">
+				<table style="background-color: white; width: 100%; max-width: 700px; margin: 0 auto;">
+					<tr>
+						<td style="padding: 40px;">
+							<table style="width: 100%; border-collapse: collapse;">
+								<tr>
+									<td style="width: 50%; padding-bottom: 30px;">
+										<h2 style="margin: 0 0 20px; font-size: 16px; line-height: 20px;">Confirm Account</h2>
+										<p>Hi <strong>@Model.Name</strong></p>
+										<p>Thank you for signing up.</p>
+										<p>
+											Please confirm your account using the following button:
+										</p>
+										<p>
+											<a href="@(Model.Url)" target="_blank" class="confirm-button">Confirm Account</a>
+										</p>
+									</td>
+								</tr>
+								<tr>
+									<td style="width: 50%; padding-bottom: 20px;">
+										<p>
+											If the button doesn't work, you can copy and paste this link into your browser:<br>
+											<a href="@(Model.Url)" target="_blank" style="color: @(ucpThemeColor); word-break: break-all;">
+												@Model.Url
+											</a>
+										</p>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</div>

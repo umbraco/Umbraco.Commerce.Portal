@@ -1,0 +1,56 @@
+@using Umbraco.Commerce.Portal.Extensions;
+
+@inherits UmbracoViewPage
+@{
+    Layout = null;
+
+    var store = Model.GetStore();
+
+    var portalContainerPage = Model.GetPortalContainerPage();
+
+    var themeColor = Model.GetThemeColor();
+
+    var logo = Model.GetStoreLogo(100, 100);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.Name</title>
+    <link rel="stylesheet" href="/App_Plugins/UmbracoCommercePortal/umbraco-commerce-portal.css" />
+
+    <style>
+        .ucp-text-color {
+            color: @(themeColor);
+        }
+
+        .ucp-bg-color {
+            background-color: @(themeColor);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth">
+        <div class="auth__box">
+            <div class="auth__logo">
+				<a href="/" class="ucp-text-color">
+                    @if (!string.IsNullOrEmpty(logo))
+                    {
+                        <img src="@logo" alt="@store.Name" />
+                    }
+                    else
+                    {
+                        <text>@store.Name</text>
+                    }
+                </a>
+            </div>
+
+            @RenderBody()
+
+            @await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalAuthFooter.cshtml")
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,97 @@
+@using Umbraco.Commerce.Portal.Extensions
+@inject IUmbracoCommerceApi CommerceApi
+@inherits UmbracoViewPage<OrderReadOnly>
+
+@{
+    var orderStatus = await CommerceApi.GetOrderStatusAsync(Model.OrderStatusId);
+
+    var orderDetailsPage = Umbraco.AssignedContentItem.GetPortalContainerPage(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderDetailsPage, null);
+    var orderDetailsUrl = $"{orderDetailsPage.Url()}?orderId={Model.Id}";
+}
+
+<div class="orders__group">
+    <div class="orders__header">
+        <div class="orders__info">
+            <div class="orders__info-item">
+                <span class="orders__info-label">
+                    @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderNumber.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderNumber.DefaultValue)
+                </span>
+                <span class="orders__info-value">#@Model.OrderNumber</span>
+            </div>
+            <div class="orders__info-item">
+                <span class="orders__info-label">
+                    @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderDate.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.OrderDate.DefaultValue)
+                </span>
+                <span class="orders__info-value">@Model.FinalizedDate</span>
+            </div>
+            <div class="orders__info-item">
+                <span class="orders__info-label">
+                    @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.TotalAmount.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.TotalAmount.DefaultValue)
+                </span>
+                <span class="orders__info-value">@(await Model.TotalPrice.Value.FormattedAsync())</span>
+            </div>
+            <div class="orders__info-item">
+                <span class="orders__info-label">
+                    @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Status.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Status.DefaultValue)
+                </span>
+                @if (orderStatus != null)
+                {
+                    <span class="orders__status @orderStatus.Color">@orderStatus.Name</span>
+                }
+            </div>
+        </div>
+		<button class="button button--primary button--small ucp-bg-color" onclick="location.href = '@orderDetailsUrl'">
+            @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.ViewOrder.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.ViewOrder.DefaultValue)
+        </button>
+    </div>
+
+    <ul class="orders__list">
+        @foreach (var orderLine in Model.OrderLines)
+        {
+            var product = Umbraco.Content(Guid.Parse(orderLine.ProductReference));
+
+            if (product != null)
+            {
+                var image = product.Value<IPublishedContent>("image");
+
+                <li class="orders__item">
+					<div class="orders__product-image orders__product-image--placeholder"
+                         style="display: flex; align-items: center; justify-content: center; font-weight: bold; width: 150px; height: 150px;">
+                         @if (image != null)
+                         {
+                            <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" />
+                         }
+						 else
+						{
+							<svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+								<path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+							</svg>
+						}
+					</div>
+                    <div class="orders__product-details">
+                        <div class="orders__product-name">@product.Name</div>
+                        <div class="orders__product-specs">
+                            @if (orderLine.Attributes.Count > 0)
+                            {
+                                foreach (var orderLineAtt in orderLine.Attributes)
+                                {
+                                    <div class="orders__product-spec">
+                                        <span>@orderLineAtt.Name:</span>
+                                        <span>@orderLineAtt.Value</span>
+                                    </div>
+                                }
+                            }
+                            <div class="orders__product-spec">
+                                <span>
+                                    @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Quantity.Key, UmbracoCommercePortalConstants.Localization.OrderInfoEntries.Quantity.DefaultValue)
+                                </span>
+                                <span>@orderLine.Quantity</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="orders__product-price">@(await orderLine.UnitPrice.Value.FormattedAsync())</div>
+                </li>
+            }
+        }
+    </ul>
+</div>

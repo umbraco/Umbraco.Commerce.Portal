@@ -1,0 +1,27 @@
+@using Umbraco.Commerce.Portal.Models;
+@model ToastModel
+
+<div class="toast" id="toast">
+    <p class="toast__message" id="toast-message"></p>
+</div>
+
+<script>
+    showToast('@Model.Message', '@Model.Type');
+
+    function showToast(message, type, duration = 5000) {
+      const toast = document.getElementById("toast");
+      const messageBox = document.getElementById("toast-message");
+
+      // Reset any previous type class
+      toast.classList.remove("toast--success", "toast--error");
+
+      toast.classList.add(type === "error" ? "toast--error" : "toast--success");
+
+      messageBox.textContent = message;
+      toast.classList.add("toast--show");
+
+      setTimeout(() => {
+        toast.classList.remove("toast--show", "toast--success", "toast--error");
+      }, duration);
+    }
+</script>

@@ -1,0 +1,67 @@
+.grey {
+  --order-status-color: #d8d7d9;
+}
+
+.brown {
+  --order-status-color: #795548;
+}
+
+.blue {
+  --order-status-color: #2196f3;
+}
+
+.light-blue {
+  --order-status-color: #03a9f4;
+}
+
+.indigo {
+  --order-status-color: #3f51b5;
+}
+
+.purple {
+  --order-status-color: #9c27b0;
+}
+
+.deep-purple {
+  --order-status-color: #673ab7;
+}
+
+.cyan {
+  --order-status-color: #00bcd4;
+}
+
+.green {
+  --order-status-color: #4caf50;
+}
+
+.light-green {
+  --order-status-color: #8bc34a;
+}
+
+.lime {
+  --order-status-color: #cddc39;
+}
+
+.yellow {
+  --order-status-color: #ffeb3b;
+}
+
+.amber {
+  --order-status-color: #ffc107;
+}
+
+.orange {
+  --order-status-color: #ff9800;
+}
+
+.deep-orange {
+  --order-status-color: #ff5722;
+}
+
+.red {
+  --order-status-color: #d42054;
+}
+
+.pink {
+  --order-status-color: #e91e63;
+}

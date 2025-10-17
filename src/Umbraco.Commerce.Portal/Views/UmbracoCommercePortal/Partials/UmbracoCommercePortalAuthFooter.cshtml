@@ -1,0 +1,15 @@
+@using Umbraco.Commerce.Portal.Extensions
+@inherits UmbracoViewPage
+@{
+    var termsAndConditionsPage = Model.GetPortalContainerSettingByAlias(UmbracoCommercePortalConstants.ContentTypes.Properties.TermsAndConditionsPageAlias);
+    var privacyPolicyPage = Model.GetPortalContainerSettingByAlias(UmbracoCommercePortalConstants.ContentTypes.Properties.PrivacyPolicyPageAlias);
+}
+
+<div class="auth__footer">
+    <a class="auth__link ucp-text-color" href="@(termsAndConditionsPage != null ? termsAndConditionsPage.Url() : "#")">
+        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.FooterEntries.TermsOfService.Key, UmbracoCommercePortalConstants.Localization.FooterEntries.TermsOfService.DefaultValue)
+    </a> |
+	<a class="auth__link ucp-text-color" href="@(privacyPolicyPage != null ? privacyPolicyPage.Url() : "#")">
+        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.FooterEntries.PrivacyPolicy.Key, UmbracoCommercePortalConstants.Localization.FooterEntries.PrivacyPolicy.DefaultValue)
+    </a>
+</div>

@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<Title>Umbraco Commerce Portal</Title>
+		<Description>A drop in customer portal for Umbraco Commerce.</Description>
+		<StaticWebAssetBasePath>App_Plugins/UmbracoCommercePortal</StaticWebAssetBasePath>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <NoWarn>CA2007;CA1848;IDE0290;IDE0022;IDE0021;IDE0063;IDE0058</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Umbraco.Cms.Core" />
+		<PackageReference Include="Umbraco.Cms.Web.Website" />
+		<PackageReference Include="Umbraco.Commerce.Cms.Startup" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <Content Include="**/*.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="wwwroot/**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

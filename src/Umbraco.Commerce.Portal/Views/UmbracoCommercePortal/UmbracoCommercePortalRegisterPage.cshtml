@@ -1,0 +1,121 @@
+@using Umbraco.Commerce.Portal.Extensions;
+@using Umbraco.Commerce.Portal.Models;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@inherits UmbracoViewPage
+@{
+    Layout = "UmbracoCommercePortalAuthLayout.cshtml";
+
+    var loginPage = Model.GetPortalContainerPage(
+        UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalAuthPage,
+        UmbracoCommercePortalConstants.ContentNodes.PortalAuthLoginPageNodeName);
+
+    var registerModel = new RegisterMemberModel();
+    var confirmMemberModel = new ConfirmMemberModel();
+    bool isConfirmMemberView = false;
+    var key = HttpContextAccessor?.HttpContext?.Request.Query["key"].ToString();
+    if (!string.IsNullOrEmpty(key))
+    {
+        isConfirmMemberView = true;
+        confirmMemberModel.MemberId = Guid.Parse(key);
+    }
+}
+
+<h2 class="auth__title auth__title-register">
+    @(isConfirmMemberView
+        ? Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmAccount.DefaultValue)
+        : Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.CreateAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.CreateAccount.DefaultValue))
+</h2>
+
+@if (isConfirmMemberView)
+{
+    @using (Html.BeginUmbracoForm("ConfirmMember", "UmbracoCommercePortalSurface", FormMethod.Post, new { @class = "auth__form" }))
+    {
+        <input type="hidden" asp-for="@confirmMemberModel.MemberId" />
+
+        @if (TempData["ConfirmMemberSuccess"] != null)
+        {
+            <text>
+                <p class="auth__signin">
+					<a class="auth__link ucp-text-color" href="@(loginPage != null ? loginPage.Url() : "#")">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.LogIn.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.LogIn.DefaultValue)
+                    </a>
+                </p>
+            </text>
+            @await Html.PartialAsync(
+                $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalToast.cshtml",
+                             new ToastModel("success", TempData["ConfirmMemberSuccess"].ToString()))
+        }
+        else
+        {
+            <p class="auth__signin">
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.PleaseConfirmAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.PleaseConfirmAccount.DefaultValue)
+            </p>
+
+			<button class="auth__button ucp-bg-color" type="submit">@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmAccount.DefaultValue)</button>
+        }
+    }
+}
+else
+{
+    @using (Html.BeginUmbracoForm("RegisterMember", "UmbracoCommercePortalSurface", FormMethod.Post, new { @class = "auth__form" }))
+    {
+        <div class="auth__field">
+            <label class="auth__label" asp-for="@registerModel.Email">
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.EmailAddress.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.EmailAddress.DefaultValue)
+            </label>
+            <input class="auth__input" type="email" asp-for="@registerModel.Email" />
+        </div>
+
+        <div class="row">
+            <div class="row__column">
+                <div class="auth__field" style="padding-right: 10px;">
+                    <label class="auth__label" asp-for="@registerModel.FirstName">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.FirstName.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.FirstName.DefaultValue)
+                    </label>
+                    <input class="auth__input" type="text" asp-for="@registerModel.FirstName" />
+                </div>
+            </div>
+
+            <div class="row__column">
+                <div class="auth__field" style="padding-left: 10px;">
+                    <label class="auth__label" asp-for="@registerModel.LastName">
+                        @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.LastName.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.LastName.DefaultValue)
+                    </label>
+                    <input class="auth__input" type="text" asp-for="@registerModel.LastName" />
+                </div>
+            </div>
+        </div>
+
+        <div class="auth__field">
+            <label class="auth__label" asp-for="@registerModel.Password">
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.Password.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.Password.DefaultValue)
+            </label>
+            <input class="auth__input" type="password" asp-for="@registerModel.Password" autocomplete="off" />
+        </div>
+
+        <div class="auth__field">
+            <label class="auth__label" asp-for="@registerModel.ConfirmPassword">
+                @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmPassword.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.ConfirmPassword.DefaultValue)
+            </label>
+            <input class="auth__input" type="password" asp-for="@registerModel.ConfirmPassword" autocomplete="off" />
+        </div>
+
+        <div class="auth__field">
+            <div class="auth__error">
+                @Html.ValidationSummary()
+            </div>
+        </div>
+
+		<button class="auth__button ucp-bg-color" type="submit">
+            @Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AuthEntries.CreateAccount.Key, UmbracoCommercePortalConstants.Localization.AuthEntries.CreateAccount.DefaultValue)
+        </button>
+
+        @if (TempData["Success"] != null)
+        {
+            @await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalToast.cshtml",
+                new ToastModel("success", TempData["Success"].ToString()))
+        }
+    }
+}
+
+@await Html.PartialAsync($"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/UmbracoCommercePortalSignIn.cshtml")
