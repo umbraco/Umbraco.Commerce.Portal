@@ -21,7 +21,8 @@ public static class UmbracoCommercePortalUmbracoBuilderExtensions
         builder.AddUmbracoCommercePortalMemberServices();
 
         // Register authentication events
-        builder.WithNotificationEvent<OnLoginNotification>()
+        builder.WithUmbracoCommerceBuilder()
+            .WithNotificationEvent<OnLoginNotification>()
             .RegisterHandler<AssignOrderToMemberOnLoginNotificationHandler>();
         builder.AddNotificationHandler<MemberSavedNotification, SynchronizeMemberUsernameOnEmailUpdateNotificationHandler>();
 
