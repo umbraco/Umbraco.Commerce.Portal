@@ -13,11 +13,11 @@
     <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="Umbraco.Commerce" Version="[17.0.0-rc2, 17.999.999)" />
-    <PackageVersion Include="Umbraco.Commerce.Cms.Startup" Version="[17.0.0-rc2, 17.999.999)" />
-    <PackageVersion Include="Umbraco.Commerce.Persistence.Sqlite" Version="[17.0.0-rc2, 17.999.999)" />
-    <PackageVersion Include="Umbraco.Cms" Version="[17.0.0-rc2, 17.999.999)" />
-    <PackageVersion Include="Umbraco.Cms.Core" Version="[17.0.0-rc2, 17.999.999)" />
-    <PackageVersion Include="Umbraco.Cms.Web.Website" Version="[17.0.0-rc2, 17.999.999)" />
+    <PackageVersion Include="Umbraco.Commerce" Version="[17.0.0, 17.999.999)" />
+    <PackageVersion Include="Umbraco.Commerce.Cms.Startup" Version="[17.0.0, 17.999.999)" />
+    <PackageVersion Include="Umbraco.Commerce.Persistence.Sqlite" Version="[17.0.0, 17.999.999)" />
+    <PackageVersion Include="Umbraco.Cms" Version="[17.0.0, 17.999.999)" />
+    <PackageVersion Include="Umbraco.Cms.Core" Version="[17.0.0, 17.999.999)" />
+    <PackageVersion Include="Umbraco.Cms.Web.Website" Version="[17.0.0, 17.999.999)" />
   </ItemGroup>
 </Project>
