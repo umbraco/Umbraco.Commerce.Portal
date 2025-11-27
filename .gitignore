@@ -476,3 +476,4 @@ demos/*
 *.local.sln
 packages.lock.json
 wwwroot
+nul
