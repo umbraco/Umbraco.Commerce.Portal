@@ -59,7 +59,7 @@
                          style="display: flex; align-items: center; justify-content: center; font-weight: bold; width: 150px; height: 150px;">
                          @if (image != null && image.HasValue)
                          {
-                            <img src="@image.Value.Url" alt="@image.Value.Name ?? string.Empty" />
+                            <img src="@image.Value.Url" alt="@(image.Value.Name ?? string.Empty)" />
                          }
 						 else
 						{
