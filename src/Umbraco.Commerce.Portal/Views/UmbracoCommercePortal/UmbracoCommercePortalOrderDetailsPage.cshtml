@@ -138,7 +138,7 @@
                     <div class="order-details__product-image orders__product-image--placeholder" style="display: flex; justify-content: center; color: white; border-radius: 8px; overflow: hidden;">
                         @if (image != null && image.HasValue)
                         {
-                            <img src="@image.Value.Url" alt="@image.Value.Name" class="img-fluid" />
+                            <img src="@image.Value.Url" alt="@(image.Value.Name" class="img-fluid)" />
                         }
                     </div>
                     <div class="order-details__product-info">
