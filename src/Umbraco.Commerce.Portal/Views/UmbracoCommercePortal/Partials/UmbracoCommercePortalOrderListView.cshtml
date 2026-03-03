@@ -52,14 +52,14 @@
 
             if (product != null)
             {
-                var image = product.Value<IPublishedContent>("image");
+                var image = product.GetProductImage();
 
                 <li class="orders__item">
 					<div class="orders__product-image orders__product-image--placeholder"
                          style="display: flex; align-items: center; justify-content: center; font-weight: bold; width: 150px; height: 150px;">
-                         @if (image != null)
+                         @if (image != null && image.HasValue)
                          {
-                            <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" />
+                            <img src="@image.Value.Url" alt="@(image.Value.Name ?? string.Empty)" />
                          }
 						 else
 						{
