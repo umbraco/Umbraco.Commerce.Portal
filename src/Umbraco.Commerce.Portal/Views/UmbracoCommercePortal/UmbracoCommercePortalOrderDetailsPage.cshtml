@@ -132,13 +132,13 @@
             var product = Umbraco.Content(Guid.Parse(orderLine.ProductReference));
             if (product != null)
             {
-                var image = product.Value<IPublishedContent>("image");
+                var image = product.GetProductImage();
 
                 <div class="order-details__product">
                     <div class="order-details__product-image orders__product-image--placeholder" style="display: flex; justify-content: center; color: white; border-radius: 8px; overflow: hidden;">
-                        @if (image != null)
+                        @if (image != null && image.HasValue)
                         {
-                            <img src="@image.GetCropUrl(120, 120)" alt="@image.Name()" class="img-fluid" />
+                            <img src="@image.Value.Url" alt="@(image.Value.Name ?? string.Empty)" class="img-fluid)" />
                         }
                     </div>
                     <div class="order-details__product-info">

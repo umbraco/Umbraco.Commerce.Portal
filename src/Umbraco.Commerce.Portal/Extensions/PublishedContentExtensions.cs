@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Umbraco.Cms.Core.Models;
@@ -77,6 +78,57 @@ internal static class PublishedContentExtensions
         return portalContainerPage.HasValue("ucpStoreLogo")
             ? portalContainerPage.Value<IPublishedContent>("ucpStoreLogo").GetCropUrl(width, height, imageCropMode: ImageCropMode.Max)
             : content.GetStore().LogoImageUrl.GetCropUrl(width, height, imageCropMode: ImageCropMode.Max);
+    }
+
+    private static readonly string[] ImagePropertyAliases = [
+        "image",
+        "images",
+        "productImage",
+        "productImages",
+    ];
+
+    /// <summary>
+    /// Retrieves the URL and optional name of the product image from the specified content item.
+    /// </summary>
+    /// <remarks>If the alias is not specified, the method attempts to locate the product image using a
+    /// predefined set of property aliases. This method is useful for content types with varying image property
+    /// names.</remarks>
+    /// <param name="content">The content item from which to extract the product image information.</param>
+    /// <param name="alias">The property alias to use for locating the product image. If null, the method searches common image property
+    /// aliases.</param>
+    /// <returns>A tuple containing the image URL and optional name if an image is found; otherwise, null.</returns>
+    public static (string Url, string? Name)? GetProductImage(this IPublishedContent content, string? alias = null)
+    {
+        if (alias is not null)
+        {
+            return GetProductImageUrlByAlias(content, alias);
+        }
+
+        foreach (var imageAlias in ImagePropertyAliases)
+        {
+            if (!content.HasProperty(imageAlias))
+            {
+                continue;
+            }
+
+            return GetProductImageUrlByAlias(content, imageAlias);
+        }
+
+        return null;
+    }
+
+    private static (string Url, string? Name)? GetProductImageUrlByAlias(IPublishedContent content, string alias)
+    {
+        var value = content.Value(alias);
+
+        return value switch
+        {
+            MediaWithCrops mwc => (mwc.GetCropUrl(120, 120)!, mwc.Name),
+            IPublishedContent media => (media.GetCropUrl(120, 120)!, media.GetCropUrl(120, 120)!),
+            IEnumerable<MediaWithCrops> mwcCol when mwcCol.FirstOrDefault() is { } mwcFirst => (mwcFirst.GetCropUrl(120, 120)!, mwcFirst.Name),
+            IEnumerable<IPublishedContent> mediaCol when mediaCol.FirstOrDefault() is { } mediaFirst => (mediaFirst.GetCropUrl(120, 120)!, mediaFirst.Name),
+            _ => null,
+        };
     }
 
     public static string GetView(this IPublishedContent content) =>
