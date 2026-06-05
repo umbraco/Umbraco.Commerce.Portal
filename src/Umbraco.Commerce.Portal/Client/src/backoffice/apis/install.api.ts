@@ -12,10 +12,10 @@ export type InstallUcpApiResponse = {
 }
 
 export const installUmbracoCommercePortalAsync: (siteRootNodeId: string) => Promise<InstallUcpApiResponse> = async (siteRootNodeId: string) => {
-  const response = fetch("/umbraco/management/api/v1/umbraco-commerce-portal/install?siteRootNodeId=" + siteRootNodeId, {
+  const response = fetch('/umbraco/management/api/v1/umbraco-commerce-portal/install?siteRootNodeId=' + siteRootNodeId, {
     credentials: OpenApiConfig.credentials,
     headers: {
-      "Authorization": "Bearer " + await OpenApiConfig.token(),
+      'Authorization': 'Bearer ' + await OpenApiConfig.token(),
     },
   }).then(
     (response: Response) => {

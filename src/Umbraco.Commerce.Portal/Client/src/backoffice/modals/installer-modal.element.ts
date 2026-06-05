@@ -7,7 +7,7 @@ import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
 import { installUmbracoCommercePortalAsync } from '../apis/install.api';
 import { UMB_NOTIFICATION_CONTEXT, UmbNotificationContext } from '@umbraco-cms/backoffice/notification';
 
-const ELEMENT_NAME = "ucp-installer-config-modal";
+const ELEMENT_NAME = 'ucp-installer-config-modal';
 @customElement(ELEMENT_NAME)
 export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
   implements UmbModalExtensionElement<object, UcpInstallerModalSubmitValue> {
@@ -60,12 +60,12 @@ export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
       if (installationResult.success) {
         this._installButton = {
           ...this._installButton,
-          state: "success",
+          state: 'success',
         };
-        this.#notificationContext?.peek("positive", {
+        this.#notificationContext?.peek('positive', {
           data: {
-            headline: "Umbraco Commerce Portal Installed",
-            message: "Umbraco Commerce Portal successfully installed",
+            headline: 'Umbraco Commerce Portal Installed',
+            message: 'Umbraco Commerce Portal successfully installed',
           },
         });
 
@@ -74,23 +74,23 @@ export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
       else {
         this._installButton = {
           ...this._installButton,
-          state: "failed",
+          state: 'failed',
         };
-        this.#notificationContext?.peek("danger", {
+        this.#notificationContext?.peek('danger', {
           data: {
-            headline: "Umbraco Commerce Portal",
-            message: installationResult.message ?? "Some errors occurred during installation process. Please try again and report to the package owner.",
+            headline: 'Umbraco Commerce Portal',
+            message: installationResult.message ?? 'Some errors occurred during installation process. Please try again and report to the package owner.',
           },
         });
       }
     } catch (err) {
       this._installButton = {
         ...this._installButton,
-        state: "failed",
+        state: 'failed',
       };
-      this.#notificationContext?.peek("danger", {
+      this.#notificationContext?.peek('danger', {
         data: {
-          headline: "Umbraco Commerce Portal",
+          headline: 'Umbraco Commerce Portal',
           message: JSON.stringify(err),
         },
       });
@@ -112,7 +112,7 @@ export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
                           description="The root node of the site under which to install the portal pages. The node itself, or an ancestor of this node must have a fully configured store picker property defined.">
                           <umb-input-content
                               slot="editor"
-                              .type=${"content"}
+                              .type=${'content'}
                               .max=${1}
                               ?showOpenButton=${false}
                               @change=${this.#onSiteRootNodeChange}

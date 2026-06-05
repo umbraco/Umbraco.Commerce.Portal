@@ -24,7 +24,7 @@ public static class UmbracoCommercePortalUmbracoBuilderExtensions
         builder.WithUmbracoCommerceBuilder()
             .WithNotificationEvent<OnLoginNotification>()
             .RegisterHandler<AssignOrderToMemberOnLoginNotificationHandler>();
-        builder.AddNotificationHandler<MemberSavedNotification, SynchronizeMemberUsernameOnEmailUpdateNotificationHandler>();
+        builder.AddNotificationAsyncHandler<MemberSavedNotification, SynchronizeMemberUsernameOnEmailUpdateNotificationHandler>();
 
         return builder;
     }

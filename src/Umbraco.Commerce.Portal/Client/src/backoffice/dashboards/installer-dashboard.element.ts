@@ -1,9 +1,9 @@
-import { LitElement, html, css, customElement } from "@umbraco-cms/backoffice/external/lit";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
-import { UCP_INSTALLER_MODAL_TOKEN } from "../modals/installer-modal.token";
+import { LitElement, html, css, customElement } from '@umbraco-cms/backoffice/external/lit';
+import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
+import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
+import { UCP_INSTALLER_MODAL_TOKEN } from '../modals/installer-modal.token';
 
-const ELEMENT_NAME = "uc-portal-installer-dashboard";
+const ELEMENT_NAME = 'uc-portal-installer-dashboard';
 @customElement(ELEMENT_NAME)
 export class UcPortalInstallerDashboard extends UmbElementMixin(LitElement) {
 
