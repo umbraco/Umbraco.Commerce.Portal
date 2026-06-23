@@ -1,6 +1,6 @@
 {
   "name": "umbraco-commerce-portal",
-  "version": "18.0.0-rc1",
+  "version": "18.0.0",
   "description": "A ready made customer portal for Umbraco Commerce",
   "main": "./src/index.ts",
   "type": "module",
