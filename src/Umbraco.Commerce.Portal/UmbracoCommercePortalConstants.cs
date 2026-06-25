@@ -167,6 +167,8 @@ public static class UmbracoCommercePortalConstants
 
             public static LocalizationEntry InvalidRequestData => new("UmbracoCommercePortal.Auth.InvalidRequestData", "Invalid request data.");
 
+            public static LocalizationEntry InvalidOrExpiredLink => new("UmbracoCommercePortal.Auth.InvalidOrExpiredLink", "This link is invalid or has expired.");
+
             public static LocalizationEntry MemberNotFound => new("UmbracoCommercePortal.Auth.MemberNotFound", "Member not found.");
 
             public static LocalizationEntry PasswordUpdated => new("UmbracoCommercePortal.Auth.PasswordUpdated", "Password updated.");
