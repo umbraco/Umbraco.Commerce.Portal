@@ -12,11 +12,13 @@
     var registerModel = new RegisterMemberModel();
     var confirmMemberModel = new ConfirmMemberModel();
     bool isConfirmMemberView = false;
-    var key = HttpContextAccessor?.HttpContext?.Request.Query["key"].ToString();
-    if (!string.IsNullOrEmpty(key))
+    var memberId = HttpContextAccessor?.HttpContext?.Request.Query["memberId"].ToString();
+    var token = HttpContextAccessor?.HttpContext?.Request.Query["token"].ToString();
+    if (!string.IsNullOrEmpty(memberId) && !string.IsNullOrEmpty(token))
     {
         isConfirmMemberView = true;
-        confirmMemberModel.MemberId = Guid.Parse(key);
+        confirmMemberModel.MemberId = Guid.Parse(memberId);
+        confirmMemberModel.Token = token;
     }
 }
 
@@ -31,6 +33,7 @@
     @using (Html.BeginUmbracoForm("ConfirmMember", "UmbracoCommercePortalSurface", FormMethod.Post, new { @class = "auth__form" }))
     {
         <input type="hidden" asp-for="@confirmMemberModel.MemberId" />
+        <input type="hidden" asp-for="@confirmMemberModel.Token" />
 
         @if (TempData["ConfirmMemberSuccess"] != null)
         {
