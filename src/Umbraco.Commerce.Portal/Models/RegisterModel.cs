@@ -30,4 +30,6 @@ public class RegisterMemberModel
 public class ConfirmMemberModel
 {
     public Guid MemberId { get; set; }
+
+    public string Token { get; set; }
 }

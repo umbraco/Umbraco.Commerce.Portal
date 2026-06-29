@@ -14,6 +14,8 @@ public class UpdatePasswordModel
 {
     public Guid MemberId { get; set; }
 
+    public string Token { get; set; }
+
     [Required]
     public string Password { get; set; }
 }

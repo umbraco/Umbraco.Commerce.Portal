@@ -127,6 +127,7 @@ stages:
 
           - task: PowerShell@2
             displayName: 'Generate & upload SBOM with cdxgen (pwsh)'
+            continueOnError: true
             inputs:
               targetType: 'inline'
               pwsh: true
