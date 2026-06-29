@@ -1,21 +1,21 @@
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/index.ts",
-      formats: ["es"],
+      entry: 'src/index.ts',
+      formats: ['es'],
     },
-    outDir: "../wwwroot/",
+    outDir: '../wwwroot/',
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
       external: [/^@umbraco/],
     },
-    cssCodeSplit: false
+    cssCodeSplit: false,
   },
   plugins: [
-    tsconfigPaths()
-  ]
+    tsconfigPaths(),
+  ],
 });

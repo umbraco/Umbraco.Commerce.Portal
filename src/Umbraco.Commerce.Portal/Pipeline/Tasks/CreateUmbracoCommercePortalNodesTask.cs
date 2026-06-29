@@ -28,9 +28,9 @@ internal class CreateUmbracoCommercePortalNodesTask(
         IContentType ucpPortalManagementPage = contentTypeService.Get(UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalManagementPage)
             ?? throw new InvalidOperationException("Portal Management Page Document Type is not found");
 
-        // Check if nodes exist
+        // Check if nodes exist (only the total count is used, so skip loading properties and templates)
         IQuery<IContent> filter = scope.SqlContext.Query<IContent>().Where(x => x.ContentTypeId == ucpPortalContainerPage.Id);
-        contentService.GetPagedChildren(args.Model.SiteRootNodeId, 1, 1, out long totalRecords, filter);
+        contentService.GetPagedChildren(args.Model.SiteRootNodeId, 1, 1, out long totalRecords, [], filter, null, false);
 
         if (totalRecords == 0)
         {
