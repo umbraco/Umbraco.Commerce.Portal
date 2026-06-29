@@ -27,7 +27,6 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
     private readonly IMemberSignInManager _signInManager;
     private readonly IMemberManager _memberManager;
     private readonly IMemberService _memberService;
-    private readonly IPasswordHasher _hasher;
     private readonly IUmbracoCommerceApi _commerceApi;
     private readonly UmbracoHelper _umbracoHelper;
 
@@ -41,7 +40,6 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         IMemberSignInManager signInManager,
         IMemberManager memberManager,
         IMemberService memberService,
-        IPasswordHasher hasher,
         IUmbracoCommerceApi commerceApi,
         UmbracoHelper umbracoHelper)
         : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
@@ -49,7 +47,6 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         _signInManager = signInManager;
         _memberManager = memberManager;
         _memberService = memberService;
-        _hasher = hasher;
         _commerceApi = commerceApi;
         _umbracoHelper = umbracoHelper;
     }
@@ -154,37 +151,23 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             return CurrentUmbracoPage();
         }
 
-        // Find member
-        var member = _memberService.GetByEmail(resetPasswordModel.Email);
-        if (member == null)
+        // Always show success regardless of whether the email exists to prevent email enumeration
+        var user = await _memberManager.FindByEmailAsync(resetPasswordModel.Email);
+        if (user != null)
         {
-            ModelState.AddModelError(
-                "memberReference",
-                _umbracoHelper.GetDictionaryValueOrDefault(
-                    UmbracoCommercePortalConstants.Localization.AuthEntries.MemberNotFound.Key,
-                    UmbracoCommercePortalConstants.Localization.AuthEntries.MemberNotFound.DefaultValue));
-            return CurrentUmbracoPage();
-        }
+            var member = _memberService.GetByEmail(resetPasswordModel.Email);
+            var store = CurrentPage.GetStore();
 
-        var store = CurrentPage.GetStore();
+            var resetToken = await _memberManager.GeneratePasswordResetTokenAsync(user);
 
-        // Send reset password email
-        var template = await _commerceApi.GetEmailTemplateAsync(
-            CurrentPage.GetStore().Id,
-            UmbracoCommercePortalConstants.EmailTemplates.ResetPasswordEmailTemplate.Key);
-        var result = await _commerceApi.SendEmailAsync(
-            template,
-            new EmailModel(member.Name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?key={member.Key}", store.Id),
-            member.Email,
-            "en-US");
-        if (!result)
-        {
-            ModelState.AddModelError(
-                "memberEmail",
-                _umbracoHelper.GetDictionaryValueOrDefault(
-                    UmbracoCommercePortalConstants.Localization.AuthEntries.FailedToSendConfirmationEmail.Key,
-                    UmbracoCommercePortalConstants.Localization.AuthEntries.FailedToSendConfirmationEmail.DefaultValue));
-            return CurrentUmbracoPage();
+            var template = await _commerceApi.GetEmailTemplateAsync(
+                CurrentPage.GetStore().Id,
+                UmbracoCommercePortalConstants.EmailTemplates.ResetPasswordEmailTemplate.Key);
+            await _commerceApi.SendEmailAsync(
+                template,
+                new EmailModel(member.Name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?memberId={member.Key}&token={Uri.EscapeDataString(resetToken)}", store.Id),
+                member.Email,
+                "en-US");
         }
 
         TempData["Success"] = _umbracoHelper.GetDictionaryValueOrDefault(
@@ -195,9 +178,20 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdatePassword(UpdatePasswordModel updatePasswordModel)
     {
         ArgumentNullException.ThrowIfNull(updatePasswordModel);
+
+        if (updatePasswordModel.MemberId == Guid.Empty || string.IsNullOrEmpty(updatePasswordModel.Token))
+        {
+            ModelState.AddModelError(
+                "memberReference",
+                _umbracoHelper.GetDictionaryValueOrDefault(
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.Key,
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.DefaultValue));
+            return CurrentUmbracoPage();
+        }
 
         var member = _memberService.GetById(updatePasswordModel.MemberId);
         if (member == null)
@@ -205,13 +199,32 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             ModelState.AddModelError(
                 "memberReference",
                 _umbracoHelper.GetDictionaryValueOrDefault(
-                    UmbracoCommercePortalConstants.Localization.AuthEntries.MemberNotFound.Key,
-                    UmbracoCommercePortalConstants.Localization.AuthEntries.MemberNotFound.DefaultValue));
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.Key,
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.DefaultValue));
             return CurrentUmbracoPage();
         }
 
-        member.RawPasswordValue = _hasher.HashPassword(updatePasswordModel.Password);
-        _memberService.Save(member);
+        var user = await _memberManager.FindByEmailAsync(member.Email);
+        if (user == null)
+        {
+            ModelState.AddModelError(
+                "memberReference",
+                _umbracoHelper.GetDictionaryValueOrDefault(
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.Key,
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.DefaultValue));
+            return CurrentUmbracoPage();
+        }
+
+        var result = await _memberManager.ResetPasswordAsync(user, updatePasswordModel.Token, updatePasswordModel.Password);
+        if (!result.Succeeded)
+        {
+            ModelState.AddModelError(
+                "memberReference",
+                _umbracoHelper.GetDictionaryValueOrDefault(
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.Key,
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.DefaultValue));
+            return CurrentUmbracoPage();
+        }
 
         TempData["UpdatePasswordSuccess"] = _umbracoHelper.GetDictionaryValueOrDefault(
                     UmbracoCommercePortalConstants.Localization.AuthEntries.PasswordUpdated.Key,
@@ -253,13 +266,15 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
 
             var store = CurrentPage.GetStore();
 
-            // Send confirm member email
+            var createdUser = await _memberManager.FindByEmailAsync(registerModel.Email);
+            var confirmToken = await _memberManager.GenerateEmailConfirmationTokenAsync(createdUser);
+
             var template = await _commerceApi.GetEmailTemplateAsync(
                 CurrentPage.GetStore().Id,
                 UmbracoCommercePortalConstants.EmailTemplates.ConfirmMemberEmailTemplate.Key);
             var result = await _commerceApi.SendEmailAsync(
                 template,
-                new EmailModel(name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?key={member.Key}", store.Id),
+                new EmailModel(name, $"{CurrentPage.Url(mode: Umbraco.Cms.Core.Models.PublishedContent.UrlMode.Absolute)}?memberId={member.Key}&token={Uri.EscapeDataString(confirmToken)}", store.Id),
                 registerModel.Email,
                 "en-US");
             if (!result)
@@ -290,16 +305,49 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> ConfirmMember(ConfirmMemberModel confirmMemberModel)
     {
+        if (confirmMemberModel.MemberId == Guid.Empty || string.IsNullOrEmpty(confirmMemberModel.Token))
+        {
+            ModelState.AddModelError(
+                "memberReference",
+                _umbracoHelper.GetDictionaryValueOrDefault(
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.Key,
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.DefaultValue));
+            return CurrentUmbracoPage();
+        }
+
         var member = _memberService.GetById(confirmMemberModel.MemberId);
         if (member == null)
         {
             ModelState.AddModelError(
                 "memberReference",
                 _umbracoHelper.GetDictionaryValueOrDefault(
-                    UmbracoCommercePortalConstants.Localization.AuthEntries.MemberNotFound.Key,
-                    UmbracoCommercePortalConstants.Localization.AuthEntries.MemberNotFound.DefaultValue));
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.Key,
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.DefaultValue));
+            return CurrentUmbracoPage();
+        }
+
+        var user = await _memberManager.FindByEmailAsync(member.Email);
+        if (user == null)
+        {
+            ModelState.AddModelError(
+                "memberReference",
+                _umbracoHelper.GetDictionaryValueOrDefault(
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.Key,
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.DefaultValue));
+            return CurrentUmbracoPage();
+        }
+
+        var result = await _memberManager.ConfirmEmailAsync(user, confirmMemberModel.Token);
+        if (!result.Succeeded)
+        {
+            ModelState.AddModelError(
+                "memberReference",
+                _umbracoHelper.GetDictionaryValueOrDefault(
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.Key,
+                    UmbracoCommercePortalConstants.Localization.AuthEntries.InvalidOrExpiredLink.DefaultValue));
             return CurrentUmbracoPage();
         }
 
