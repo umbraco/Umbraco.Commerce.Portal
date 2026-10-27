@@ -1,0 +1,63 @@
+name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - release/*
+      - hotfix/*
+  tags:
+    include:
+      - release-*
+
+resources:
+  repositories:
+    - repository: build
+      type: github
+      name: umbraco/Umbraco.Build
+      endpoint: umbraco
+
+parameters:
+  - name: prerelease
+    displayName: Prerelease
+    type: string
+    default: auto
+    values:
+      - auto # Only release to MyGet on public releases, otherwise skip
+      - prerelease # Release to MyGet pre-release feed, regardless of release type
+      - nightly # Release to MyGet nightly feed, regardless of release type
+      - skip # Skip releasing to MyGet, regardless of release type
+  - name: release
+    displayName: Release
+    type: string
+    default: auto
+    values:
+      - auto # Only release to NuGet on public, stable releases, otherwise skip
+      - public # Release to NuGet, regardless of release type
+      - skip # Skip releasing to NuGet, regardless of release type
+  - name: sbom_generate
+    displayName: Generate SBOM
+    type: boolean
+    default: false # SBOM is still generated for release/hotfix branches and release-* tags
+
+extends:
+  template: devops/templates/azure-pipelines-template.yml@build
+  parameters:
+    product_name: Umbraco.Commerce.Portal
+    prerelease: ${{ parameters.prerelease }}
+    # Prerelease tags (e.g. release-18.1.0-rc.1) only go to MyGet, never NuGet.org
+    ${{ if and(eq(parameters.release, 'auto'), startsWith(variables['Build.SourceBranch'], 'refs/tags/release-'), contains(replace(variables['Build.SourceBranch'], 'refs/tags/release-', ''), '-')) }}:
+      release: skip
+    ${{ else }}:
+      release: ${{ parameters.release }}
+    run_tests: skip # No test projects
+    sbom_generate: ${{ parameters.sbom_generate }}
+    # Release/hotfix branch builds still run the license check, but only release-* tags upload, so
+    # Dependency-Track only lists released versions
+    sbom_upload: ${{ startsWith(variables['Build.SourceBranch'], 'refs/tags/release-') }}
+    sbom_dt_variable_group: dependency-track
+    # The client app is bundled into the NuGet package, so its npm dependencies ship too
+    sbom_npm_paths:
+      - src/Umbraco.Commerce.Portal/Client
+    nuget_nightly_service_connection: Myget - Umbraco Nightly
+    nuget_prereleases_service_connection: Myget - Umbraco Prereleases
+    nuget_service_connection: Umbraco NuGet
