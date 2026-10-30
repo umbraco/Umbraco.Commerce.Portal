@@ -1,10 +1,4 @@
-export const OpenApiConfig: {
-  credentials: RequestCredentials,
-  token: () => Promise<string | undefined>,
-} = {
-  credentials: 'same-origin',
-  token: async () => '',
-};
+import { umbHttpClient } from '@umbraco-cms/backoffice/http-client';
 
 export type InstallUcpApiResponse = {
   success: boolean,
@@ -12,20 +6,25 @@ export type InstallUcpApiResponse = {
 }
 
 export const installUmbracoCommercePortalAsync: (siteRootNodeId: string) => Promise<InstallUcpApiResponse> = async (siteRootNodeId: string) => {
-  const response = fetch('/umbraco/management/api/v1/umbraco-commerce-portal/install?siteRootNodeId=' + siteRootNodeId, {
-    credentials: OpenApiConfig.credentials,
-    headers: {
-      'Authorization': 'Bearer ' + await OpenApiConfig.token(),
-    },
-  }).then(
-    (response: Response) => {
-      return response.json() as Promise<InstallUcpApiResponse>;
-    },
-    (reason: unknown) => ({
+  try {
+    const result = await umbHttpClient.post({
+      url: '/umbraco/management/api/v1/umbraco-commerce-portal/install',
+      query: { siteRootNodeId },
+    });
+
+    if (result.error !== undefined) {
+      return {
+        success: false,
+        message: typeof result.error === 'string' ? result.error : JSON.stringify(result.error),
+      };
+    }
+
+    // The client types an untyped response as unknown; the endpoint returns { success, message }
+    return result.data as InstallUcpApiResponse;
+  } catch (reason: unknown) {
+    return {
       success: false,
-      message: JSON.stringify(reason),
-    })) as Promise<InstallUcpApiResponse>;
-
-  return response;
+      message: reason instanceof Error ? reason.message : JSON.stringify(reason),
+    };
+  }
 };
-
