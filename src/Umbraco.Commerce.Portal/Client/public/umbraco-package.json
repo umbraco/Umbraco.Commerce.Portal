@@ -8,5 +8,5 @@
         "js": "/App_Plugins/UmbracoCommercePortal/umbraco-commerce-portal.js"
       }
     ],
-    "version": "16.0.0"
+    "version": "19.0.0-beta.1"
 }

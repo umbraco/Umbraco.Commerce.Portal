@@ -31,7 +31,7 @@
   <!-- Package validation -->
   <PropertyGroup>
     <EnablePackageValidation>false</EnablePackageValidation>
-    <!--<PackageValidationBaselineVersion>18.0.0-rc1</PackageValidationBaselineVersion>-->
+    <!--<PackageValidationBaselineVersion>19.0.0</PackageValidationBaselineVersion>-->
     <EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
     <EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>
   </PropertyGroup>
