@@ -53,10 +53,10 @@ Under `Order History` the customer can review it's past orders and their details
 ## Working locally
 
 To fork and build your own Commerce Portal package, you will need:
-* .NET 9.0 SDK or newer
-* Umbraco 16.0.0 or newer
-* Umbraco Commerce 16.0.0 or newer
-* NodeJS 20+ for frontend development. Open `/src/Umbraco.Commerce.Portal/Client` folder and run `npm install; npm run build`
+* .NET 11 SDK (see `global.json`)
+* Umbraco 19.0.0 or newer
+* Umbraco Commerce 19.0.0 or newer
+* NodeJS 24.13+ for frontend development. Open `/src/Umbraco.Commerce.Portal/Client` folder and run `npm install; npm run build`
 
 ## Raising an Issue
 
