@@ -320,7 +320,7 @@ public class PortalCustomerService
             sets.Add(await _commerceApi.GetFinalizedOrdersForCustomerAsync(storeId, email));
         }
 
-        return MergeOrders(sets.Select(x => x.Where(o => o.IsFinalized)), x => x.Id, x => x.FinalizedDate);
+        return MergeOrders(sets, x => x.Id, x => x.FinalizedDate, x => x.IsFinalized);
     }
 
     /// <summary>
@@ -333,7 +333,7 @@ public class PortalCustomerService
         ArgumentNullException.ThrowIfNull(customer);
 
         OrderReadOnly? order = await _commerceApi.GetOrderAsync(orderId);
-        if (order is null || order.StoreId != storeId || !order.IsFinalized)
+        if (order is null || !IsShowableOrder(storeId, order.StoreId, order.IsFinalized))
         {
             return null;
         }
@@ -344,7 +344,7 @@ public class PortalCustomerService
         }
 
         var linked = await _commerceApi.GetAllOrdersForCustomerAsync(storeId, customer.Id);
-        return linked.Any(x => x.Id == orderId) ? order : null;
+        return IsLinkedOrder(linked.Select(x => x.Id), orderId) ? order : null;
     }
 
     /// <summary>
@@ -378,6 +378,12 @@ public class PortalCustomerService
         });
     }
 
+    internal static bool IsShowableOrder(Guid storeId, Guid orderStoreId, bool isFinalized)
+        => isFinalized && orderStoreId == storeId;
+
+    internal static bool IsLinkedOrder(IEnumerable<Guid> linkedOrderIds, Guid orderId)
+        => linkedOrderIds.Contains(orderId);
+
     internal static bool IsOrderOwnedBy(string? customerReference, string? orderEmail, Guid memberKey, IEnumerable<string> emails)
     {
         if (!string.IsNullOrWhiteSpace(customerReference)
@@ -390,13 +396,13 @@ public class PortalCustomerService
         return !string.IsNullOrWhiteSpace(orderEmail) && emails.Any(x => EmailEquals(x, orderEmail));
     }
 
-    internal static IReadOnlyList<T> MergeOrders<T>(IEnumerable<IEnumerable<T>> sets, Func<T, Guid> idSelector, Func<T, DateTime?> dateSelector)
+    internal static IReadOnlyList<T> MergeOrders<T>(IEnumerable<IEnumerable<T>> sets, Func<T, Guid> idSelector, Func<T, DateTime?> dateSelector, Func<T, bool> isFinalized)
     {
         var seen = new HashSet<Guid>();
         var merged = new List<T>();
         foreach (IEnumerable<T> set in sets)
         {
-            foreach (T item in set)
+            foreach (T item in set.Where(isFinalized))
             {
                 if (seen.Add(idSelector(item)))
                 {
@@ -468,8 +474,6 @@ public class PortalCustomerService
                 await writable.SetLastNameAsync(last);
             }
 
-            await writable.SetPropertyAsync(UmbracoCommercePortalConstants.Customers.LegacyProfileImportedPropertyAlias, "true");
-
             await _customerService.SaveCustomerAsync(writable);
             return uow.Complete(writable);
         });
@@ -477,6 +481,15 @@ public class PortalCustomerService
         if (needsLegacyImport)
         {
             await ImportLegacyAddressAsync(storeId, customer.Id, profile);
+
+            // Mark the copy as done only once the address is saved, so a failed copy is retried on the next visit.
+            customer = await _uowProvider.ExecuteAsync(async uow =>
+            {
+                Customer writable = await customer.AsWritableAsync(uow);
+                await writable.SetPropertyAsync(UmbracoCommercePortalConstants.Customers.LegacyProfileImportedPropertyAlias, "true");
+                await _customerService.SaveCustomerAsync(writable);
+                return uow.Complete(writable);
+            });
         }
 
         return customer.AsReadOnly();
