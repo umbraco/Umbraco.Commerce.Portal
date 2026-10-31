@@ -39,8 +39,8 @@ public class PortalCustomerServiceResolveTests
         CustomerReadOnly result = await _service.GetOrCreateCustomerAsync(StoreId, member.Object);
 
         Assert.Equal(byEmail.Id, result.Id);
-        Customer saved = Assert.Single(_fixture.SavedCustomers);
-        Assert.Same(byEmail, saved);
+        Assert.All(_fixture.SavedCustomers, x => Assert.Same(byEmail, x));
+        Customer saved = _fixture.SavedCustomers.Last();
         Assert.Equal(member.Object.Key, saved.MemberKey);
         Assert.Null(otherStore.MemberKey);
     }
@@ -56,7 +56,7 @@ public class PortalCustomerServiceResolveTests
 
         CustomerReadOnly result = await _service.GetOrCreateCustomerAsync(StoreId, member.Object);
 
-        Customer saved = Assert.Single(_fixture.SavedCustomers);
+        Customer saved = _fixture.SavedCustomers.Last();
         Assert.Equal(saved.Id, result.Id);
         Assert.Equal(StoreId, saved.StoreId);
         Assert.Equal("ada@example.com", saved.Email);
@@ -73,7 +73,7 @@ public class PortalCustomerServiceResolveTests
 
         await _service.GetOrCreateCustomerAsync(StoreId, member.Object);
 
-        Customer saved = Assert.Single(_fixture.SavedCustomers);
+        Customer saved = _fixture.SavedCustomers.Last();
         Assert.Equal("Ada", saved.FirstName);
         Assert.Equal("King Lovelace", saved.LastName);
     }
@@ -85,7 +85,7 @@ public class PortalCustomerServiceResolveTests
 
         await _service.GetOrCreateCustomerAsync(StoreId, member.Object, "Augusta", "Byron");
 
-        Customer saved = Assert.Single(_fixture.SavedCustomers);
+        Customer saved = _fixture.SavedCustomers.Last();
         Assert.Equal("Augusta", saved.FirstName);
         Assert.Equal("Byron", saved.LastName);
     }
@@ -114,6 +114,23 @@ public class PortalCustomerServiceResolveTests
 
         Assert.Equal(linked.Id, result.Id);
         Assert.Equal("new@example.com", Assert.Single(_fixture.SavedCustomers).Email);
+    }
+
+    [Fact]
+    public async Task GetOrCreateCustomerAsync_WhenCopyingTheOldAddressFails_DoesNotMarkTheCopyAsDone()
+    {
+        var member = CreateMember("ada@example.com", "Ada Lovelace", new Dictionary<string, string>
+        {
+            [UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.Street] = "Main Street 1",
+        });
+        _fixture.CustomerService
+            .Setup(x => x.SaveCustomerAddressAsync(It.IsAny<CustomerAddress>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("database unavailable"));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.GetOrCreateCustomerAsync(StoreId, member.Object));
+
+        Customer saved = Assert.Single(_fixture.SavedCustomers);
+        Assert.False(saved.Properties.ContainsKey(UmbracoCommercePortalConstants.Customers.LegacyProfileImportedPropertyAlias));
     }
 
     [Fact]

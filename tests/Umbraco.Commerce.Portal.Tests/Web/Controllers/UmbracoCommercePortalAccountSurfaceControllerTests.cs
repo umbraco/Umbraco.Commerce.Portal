@@ -32,6 +32,8 @@ public class UmbracoCommercePortalAccountSurfaceControllerTests
     [InlineData(typeof(AddressBookAddressModel))]
     public void FormModel_WhenInspected_HasNoUsableMemberOrCustomerId(Type model)
     {
+        ArgumentNullException.ThrowIfNull(model);
+
         var ids = model.GetProperties()
             .Where(x => x.Name.Contains("Member", StringComparison.Ordinal) || x.Name.Contains("Customer", StringComparison.Ordinal) || x.Name == "Id")
             .Where(x => x.GetCustomAttribute<ObsoleteAttribute>() is null)

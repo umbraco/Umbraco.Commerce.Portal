@@ -86,14 +86,63 @@ public class PortalCustomerServiceAccountAndOrderTests
         var b = new TestOrder(Guid.NewGuid(), new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc));
         var c = new TestOrder(Guid.NewGuid(), new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc));
 
-        var merged = PortalCustomerService.MergeOrders([[a, b], [b, c], [a with { }, c]], x => x.Id, x => x.FinalizedDate);
+        var merged = Merge([a, b], [b, c], [a with { }, c]);
 
         Assert.Equal([b, c, a], merged);
     }
 
     [Fact]
+    public void MergeOrders_WhenAnOrderIsNotFinalized_LeavesItOut()
+    {
+        var finalized = new TestOrder(Guid.NewGuid(), new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        var cart = new TestOrder(Guid.NewGuid(), null);
+
+        Assert.Equal([finalized], Merge([finalized, cart], [cart]));
+    }
+
+    [Fact]
     public void MergeOrders_WhenAllSetsAreEmpty_ReturnsEmpty()
-        => Assert.Empty(PortalCustomerService.MergeOrders<TestOrder>([[], []], x => x.Id, x => x.FinalizedDate));
+        => Assert.Empty(Merge([], []));
+
+    [Fact]
+    public async Task GetFinalizedOrdersAsync_WhenCalled_LooksUpTheCustomerLinkTheMemberKeyAndEachEmailOnce()
+    {
+        Mock<IMember> member = CreateMember("ada@example.com", "Ada Lovelace");
+        Customer customer = await _fixture.CreateCustomerAsync("ADA@example.com", "Ada", "Lovelace", member.Object.Key, imported: true);
+        _fixture.CommerceApi.Setup(x => x.GetAllOrdersForCustomerAsync(StoreId, customer.Id)).ReturnsAsync([]);
+        _fixture.CommerceApi.Setup(x => x.GetFinalizedOrdersForCustomerAsync(StoreId, It.IsAny<string>())).ReturnsAsync([]);
+
+        var orders = await _service.GetFinalizedOrdersAsync(StoreId, member.Object, customer);
+
+        Assert.Empty(orders);
+        _fixture.CommerceApi.Verify(x => x.GetAllOrdersForCustomerAsync(StoreId, customer.Id), Times.Once);
+        _fixture.CommerceApi.Verify(x => x.GetFinalizedOrdersForCustomerAsync(StoreId, member.Object.Key.ToString()), Times.Once);
+        _fixture.CommerceApi.Verify(x => x.GetFinalizedOrdersForCustomerAsync(StoreId, It.Is<string>(e => e.Equals("ada@example.com", StringComparison.OrdinalIgnoreCase))), Times.Once);
+    }
+
+    [Fact]
+    public void IsShowableOrder_WhenFinalizedInTheStore_IsTrue()
+        => Assert.True(PortalCustomerService.IsShowableOrder(StoreId, StoreId, isFinalized: true));
+
+    [Fact]
+    public void IsShowableOrder_WhenInAnotherStore_IsFalse()
+        => Assert.False(PortalCustomerService.IsShowableOrder(StoreId, OtherStoreId, isFinalized: true));
+
+    [Fact]
+    public void IsShowableOrder_WhenNotFinalized_IsFalse()
+        => Assert.False(PortalCustomerService.IsShowableOrder(StoreId, StoreId, isFinalized: false));
+
+    [Fact]
+    public void IsLinkedOrder_WhenTheCustomerIsLinkedToTheOrder_IsTrue()
+    {
+        var orderId = Guid.NewGuid();
+
+        Assert.True(PortalCustomerService.IsLinkedOrder([Guid.NewGuid(), orderId], orderId));
+    }
+
+    [Fact]
+    public void IsLinkedOrder_WhenTheCustomerIsNotLinkedToTheOrder_IsFalse()
+        => Assert.False(PortalCustomerService.IsLinkedOrder([Guid.NewGuid()], Guid.NewGuid()));
 
     [Fact]
     public void IsOrderOwnedBy_WhenOrderIsAssignedToTheMember_IsTrue()
@@ -132,9 +181,12 @@ public class PortalCustomerServiceAccountAndOrderTests
         Assert.Null(PortalCustomerService.MatchRegion(regions, null));
     }
 
+    private static IReadOnlyList<TestOrder> Merge(params TestOrder[][] sets)
+        => PortalCustomerService.MergeOrders(sets, x => x.Id, x => x.FinalizedDate, x => x.FinalizedDate.HasValue);
+
     private async Task<Customer> LinkCustomerAsync(IMember member)
     {
-        Customer customer = await _fixture.CreateCustomerAsync(member.Email!, "Ada", "Lovelace", member.Key, imported: true);
+        Customer customer = await _fixture.CreateCustomerAsync(member.Email!, "Ada", "Lovelace", member.Key, imported: true).ConfigureAwait(false);
         _fixture.CustomerService.Setup(x => x.GetCustomerByMemberKeyAsync(StoreId, member.Key)).ReturnsAsync(customer);
         return customer;
     }

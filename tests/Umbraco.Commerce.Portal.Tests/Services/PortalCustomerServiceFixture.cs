@@ -21,22 +21,6 @@ internal sealed class PortalCustomerServiceFixture
     public static readonly Guid StoreId = Guid.NewGuid();
     public static readonly Guid OtherStoreId = Guid.NewGuid();
 
-    public Mock<ICustomerService> CustomerService { get; } = new();
-
-    public Mock<IUmbracoCommerceApi> CommerceApi { get; } = new();
-
-    public Mock<IUnitOfWorkProvider> UowProvider { get; } = new();
-
-    public Mock<IMemberService> MemberService { get; } = new();
-
-    public Mock<IMemberManager> MemberManager { get; } = new();
-
-    public Mock<IUnitOfWork> Uow { get; } = new();
-
-    public List<CustomerAddress> Addresses { get; } = [];
-
-    public List<Customer> SavedCustomers { get; } = [];
-
     static PortalCustomerServiceFixture() => InstallNoOpEventBus();
 
     public PortalCustomerServiceFixture()
@@ -78,12 +62,21 @@ internal sealed class PortalCustomerServiceFixture
         CommerceApi.Setup(x => x.GetRegionsAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync([]);
     }
 
-    public PortalCustomerService CreateService() => new(
-        CustomerService.Object,
-        CommerceApi.Object,
-        UowProvider.Object,
-        MemberService.Object,
-        MemberManager.Object);
+    public Mock<ICustomerService> CustomerService { get; } = new();
+
+    public Mock<IUmbracoCommerceApi> CommerceApi { get; } = new();
+
+    public Mock<IUnitOfWorkProvider> UowProvider { get; } = new();
+
+    public Mock<IMemberService> MemberService { get; } = new();
+
+    public Mock<IMemberManager> MemberManager { get; } = new();
+
+    public Mock<IUnitOfWork> Uow { get; } = new();
+
+    public List<CustomerAddress> Addresses { get; } = [];
+
+    public List<Customer> SavedCustomers { get; } = [];
 
     public static Mock<IMember> CreateMember(string email, string name = "", Dictionary<string, string>? values = null)
     {
@@ -97,13 +90,40 @@ internal sealed class PortalCustomerServiceFixture
         return member;
     }
 
+    // Country and region setters raise validation events through Commerce's static EventBus, which
+    // resolves its dispatcher from an internal service locator. Point it at no-op handlers (as Core's own tests do).
+    private static void InstallNoOpEventBus()
+    {
+        var handlerFactory = new Mock<IAsyncEventHandlerFactory>();
+        handlerFactory.Setup(x => x.CreateFor(It.IsAny<IEvent>())).Returns([]);
+        var dispatcher = new Mock<IAsyncEventDispatcher>();
+        var factory = new Mock<IFactory>();
+        factory.Setup(x => x.GetInstance<IAsyncEventHandlerFactory>()).Returns(handlerFactory.Object);
+        factory.Setup(x => x.GetInstance<IAsyncEventDispatcher>()).Returns(dispatcher.Object);
+
+        PropertyInfo factoryProperty = typeof(IFactory).Assembly
+            .GetType("Umbraco.Commerce.Common.ServiceLocator", throwOnError: true)!
+            .GetProperty("Factory", BindingFlags.Static | BindingFlags.NonPublic)!;
+        if (factoryProperty.GetValue(null) is null)
+        {
+            factoryProperty.SetValue(null, factory.Object);
+        }
+    }
+
+    public PortalCustomerService CreateService() => new(
+        CustomerService.Object,
+        CommerceApi.Object,
+        UowProvider.Object,
+        MemberService.Object,
+        MemberManager.Object);
+
     public async Task<Customer> CreateCustomerAsync(string email, string firstName = "", string lastName = "", Guid? memberKey = null, bool imported = false, Guid? storeId = null)
     {
-        Customer customer = await Customer.CreateAsync(Uow.Object, storeId ?? StoreId, firstName, lastName, email);
-        await customer.SetMemberKeyAsync(memberKey);
+        Customer customer = await Customer.CreateAsync(Uow.Object, storeId ?? StoreId, firstName, lastName, email).ConfigureAwait(false);
+        await customer.SetMemberKeyAsync(memberKey).ConfigureAwait(false);
         if (imported)
         {
-            await customer.SetPropertyAsync(UmbracoCommercePortalConstants.Customers.LegacyProfileImportedPropertyAlias, "true");
+            await customer.SetPropertyAsync(UmbracoCommercePortalConstants.Customers.LegacyProfileImportedPropertyAlias, "true").ConfigureAwait(false);
         }
 
         return customer;
@@ -132,26 +152,6 @@ internal sealed class PortalCustomerServiceFixture
         {
             CommerceApi.Setup(x => x.GetCountryAsync(country.Id)).ReturnsAsync(country);
             CommerceApi.Setup(x => x.GetCountryAsync(country.StoreId, country.Code)).ReturnsAsync(country);
-        }
-    }
-
-    // Country and region setters raise validation events through Commerce's static EventBus, which
-    // resolves its dispatcher from an internal service locator. Point it at no-op handlers (as Core's own tests do).
-    private static void InstallNoOpEventBus()
-    {
-        var handlerFactory = new Mock<IAsyncEventHandlerFactory>();
-        handlerFactory.Setup(x => x.CreateFor(It.IsAny<IEvent>())).Returns([]);
-        var dispatcher = new Mock<IAsyncEventDispatcher>();
-        var factory = new Mock<IFactory>();
-        factory.Setup(x => x.GetInstance<IAsyncEventHandlerFactory>()).Returns(handlerFactory.Object);
-        factory.Setup(x => x.GetInstance<IAsyncEventDispatcher>()).Returns(dispatcher.Object);
-
-        PropertyInfo factoryProperty = typeof(IFactory).Assembly
-            .GetType("Umbraco.Commerce.Common.ServiceLocator", throwOnError: true)!
-            .GetProperty("Factory", BindingFlags.Static | BindingFlags.NonPublic)!;
-        if (factoryProperty.GetValue(null) is null)
-        {
-            factoryProperty.SetValue(null, factory.Object);
         }
     }
 
