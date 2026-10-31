@@ -98,6 +98,14 @@ public static class UmbracoCommercePortalConstants
         }
     }
 
+    public static class Customers
+    {
+        /// <summary>
+        /// Customer property set once the member's old Portal profile properties have been copied onto the customer.
+        /// </summary>
+        public const string LegacyProfileImportedPropertyAlias = "ucpLegacyProfileImported";
+    }
+
     public static class ContentNodes
     {
         public const string PortalAuthLoginPageNodeName = "Login";
@@ -186,6 +194,20 @@ public static class UmbracoCommercePortalConstants
             public static LocalizationEntry MemberCurrentPasswordIncorrect => new("UmbracoCommercePortal.Auth.MemberCurrentPasswordIncorrect", "The current password is incorrect");
 
             public static LocalizationEntry MemberPasswordChanged => new("UmbracoCommercePortal.Auth.MemberPasswordChanged", "Password changed");
+
+            public static LocalizationEntry EmailInUse => new("UmbracoCommercePortal.Auth.EmailInUse", "This email address is already in use.");
+
+            public static LocalizationEntry AddressSaved => new("UmbracoCommercePortal.Auth.AddressSaved", "Address saved.");
+
+            public static LocalizationEntry AddressDeleted => new("UmbracoCommercePortal.Auth.AddressDeleted", "Address deleted.");
+
+            public static LocalizationEntry DefaultAddressUpdated => new("UmbracoCommercePortal.Auth.DefaultAddressUpdated", "Default address updated.");
+
+            public static LocalizationEntry AddressNotFound => new("UmbracoCommercePortal.Auth.AddressNotFound", "Address not found.");
+
+            public static LocalizationEntry InvalidCountry => new("UmbracoCommercePortal.Auth.InvalidCountry", "Please choose a country from the list.");
+
+            public static LocalizationEntry InvalidRegion => new("UmbracoCommercePortal.Auth.InvalidRegion", "Please choose a state / province of the selected country.");
         }
 
         public static class OrderInfoEntries
@@ -298,6 +320,44 @@ public static class UmbracoCommercePortalConstants
             public static LocalizationEntry CurrentPassword => new("UmbracoCommercePortal.Account.CurrentPassword", "Current Password");
 
             public static LocalizationEntry NewPassword => new("UmbracoCommercePortal.Account.NewPassword", "New Password");
+
+            public static LocalizationEntry Telephone => new("UmbracoCommercePortal.Account.Telephone", "Phone number");
+
+            public static LocalizationEntry Save => new("UmbracoCommercePortal.Account.Save", "Save");
+
+            public static LocalizationEntry AddressBook => new("UmbracoCommercePortal.Account.AddressBook", "Address Book");
+
+            public static LocalizationEntry BillingAddresses => new("UmbracoCommercePortal.Account.BillingAddresses", "Billing addresses");
+
+            public static LocalizationEntry ShippingAddresses => new("UmbracoCommercePortal.Account.ShippingAddresses", "Shipping addresses");
+
+            public static LocalizationEntry NoAddresses => new("UmbracoCommercePortal.Account.NoAddresses", "No saved addresses yet.");
+
+            public static LocalizationEntry AddAddress => new("UmbracoCommercePortal.Account.AddAddress", "Add an address");
+
+            public static LocalizationEntry EditAddress => new("UmbracoCommercePortal.Account.EditAddress", "Edit address");
+
+            public static LocalizationEntry AddressType => new("UmbracoCommercePortal.Account.AddressType", "Address type");
+
+            public static LocalizationEntry BillingAddress => new("UmbracoCommercePortal.Account.BillingAddress", "Billing address");
+
+            public static LocalizationEntry ShippingAddress => new("UmbracoCommercePortal.Account.ShippingAddress", "Shipping address");
+
+            public static LocalizationEntry AddressLine2 => new("UmbracoCommercePortal.Account.AddressLine2", "Apartment, suite, etc. (optional)");
+
+            public static LocalizationEntry Default => new("UmbracoCommercePortal.Account.Default", "Default");
+
+            public static LocalizationEntry UseAsDefault => new("UmbracoCommercePortal.Account.UseAsDefault", "Use as my default address");
+
+            public static LocalizationEntry SetAsDefault => new("UmbracoCommercePortal.Account.SetAsDefault", "Set as default");
+
+            public static LocalizationEntry Edit => new("UmbracoCommercePortal.Account.Edit", "Edit");
+
+            public static LocalizationEntry Delete => new("UmbracoCommercePortal.Account.Delete", "Delete");
+
+            public static LocalizationEntry ConfirmDeleteAddress => new("UmbracoCommercePortal.Account.ConfirmDeleteAddress", "Delete this address?");
+
+            public static LocalizationEntry Cancel => new("UmbracoCommercePortal.Account.Cancel", "Cancel");
         }
 
         public static class ManagementEntries

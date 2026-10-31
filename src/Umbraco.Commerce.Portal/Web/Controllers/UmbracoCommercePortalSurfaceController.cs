@@ -2,7 +2,9 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
@@ -18,6 +20,7 @@ using Umbraco.Commerce.Core.Api;
 using Umbraco.Commerce.Portal.Events;
 using Umbraco.Commerce.Portal.Extensions;
 using Umbraco.Commerce.Portal.Models;
+using Umbraco.Commerce.Portal.Services;
 using Umbraco.Extensions;
 
 namespace Umbraco.Commerce.Portal.Web.Controllers;
@@ -28,8 +31,34 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
     private readonly IMemberManager _memberManager;
     private readonly IMemberService _memberService;
     private readonly IUmbracoCommerceApi _commerceApi;
+    private readonly PortalCustomerService _portalCustomerService;
     private readonly UmbracoHelper _umbracoHelper;
 
+    [ActivatorUtilitiesConstructor]
+    public UmbracoCommercePortalSurfaceController(
+        IUmbracoContextAccessor umbracoContextAccessor,
+        IUmbracoDatabaseFactory databaseFactory,
+        ServiceContext services,
+        AppCaches appCaches,
+        IProfilingLogger profilingLogger,
+        IPublishedUrlProvider publishedUrlProvider,
+        IMemberSignInManager signInManager,
+        IMemberManager memberManager,
+        IMemberService memberService,
+        IUmbracoCommerceApi commerceApi,
+        PortalCustomerService portalCustomerService,
+        UmbracoHelper umbracoHelper)
+        : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
+    {
+        _signInManager = signInManager;
+        _memberManager = memberManager;
+        _memberService = memberService;
+        _commerceApi = commerceApi;
+        _portalCustomerService = portalCustomerService;
+        _umbracoHelper = umbracoHelper;
+    }
+
+    [Obsolete("Use the constructor that takes PortalCustomerService. Will be removed in v21.0.0")]
     public UmbracoCommercePortalSurfaceController(
         IUmbracoContextAccessor umbracoContextAccessor,
         IUmbracoDatabaseFactory databaseFactory,
@@ -42,13 +71,20 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         IMemberService memberService,
         IUmbracoCommerceApi commerceApi,
         UmbracoHelper umbracoHelper)
-        : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
+        : this(
+            umbracoContextAccessor,
+            databaseFactory,
+            services,
+            appCaches,
+            profilingLogger,
+            publishedUrlProvider,
+            signInManager,
+            memberManager,
+            memberService,
+            commerceApi,
+            StaticServiceProvider.Instance.GetRequiredService<PortalCustomerService>(),
+            umbracoHelper)
     {
-        _signInManager = signInManager;
-        _memberManager = memberManager;
-        _memberService = memberService;
-        _commerceApi = commerceApi;
-        _umbracoHelper = umbracoHelper;
     }
 
     [HttpPost]
@@ -117,7 +153,7 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
             return CurrentUmbracoPage();
         }
 
-        var member = _memberService.GetByEmail(HttpContext.User.Identity.Name);
+        var member = await _portalCustomerService.GetCurrentMemberAsync();
         if (HttpContext.User.Identity?.IsAuthenticated ?? false)
         {
             await _signInManager.SignOutAsync();
@@ -257,14 +293,14 @@ public class UmbracoCommercePortalSurfaceController : SurfaceController
         if (identityResult.Succeeded)
         {
             var member = _memberService.GetByEmail(registerModel.Email);
-            member.SetValue(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.FirstName, registerModel.FirstName);
-            member.SetValue(UmbracoCommercePortalConstants.ContentTypes.MemberTypeAliases.LastName, registerModel.LastName);
-            _memberService.Save(member);
 
             // Assign portal member role
             _memberService.AssignRole(member.Username, UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMemberGroup);
 
             var store = CurrentPage.GetStore();
+
+            // The member's profile lives on the store's customer, created or linked here.
+            await _portalCustomerService.GetOrCreateCustomerAsync(store.Id, member, registerModel.FirstName, registerModel.LastName);
 
             var createdUser = await _memberManager.FindByEmailAsync(registerModel.Email);
             var confirmToken = await _memberManager.GenerateEmailConfirmationTokenAsync(createdUser);

@@ -42,11 +42,15 @@ The portal management area is a secure location only accessible to members of ty
 
 Within their private space, they are able to manage their account details and view order history.
 
-My acount section offers support for handling personal information, update billing information or change password.
+The My Account section lets members edit their personal information (name, email and phone number), manage an address book of billing and shipping addresses, and change their password.
+
+Profile details and addresses are stored on the member's Umbraco Commerce customer for the current store, not on the member. Portal creates or links that customer the first time the member signs in or registers. Addresses from finalized orders appear in the address book automatically.
+
+Older versions stored the profile in properties of the `ucpMember` member type (`ucpMemberFirstName`, `ucpMemberLastName`, `ucpMemberCountry`, `ucpMemberStreet`, `ucpMemberCity`, `ucpMemberState`, `ucpZipCode`). Portal copies these onto the customer once, on the member's first visit, and no longer writes them. The properties and the member type are left in place.
 
 ![my-account](./assets/my-account.png)
 
-Under `Order History` the customer can review it's past orders and their details. These views are only with read-only purposes.
+Under `Order History` the customer can review their past orders and their details. These views are only with read-only purposes.
 
 ![order-history](./assets/order-history.png)
 

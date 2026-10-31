@@ -150,6 +150,14 @@
     align-items: flex-start;
     gap: 16px;
   }
+
+  .address-book__item {
+    flex-direction: column;
+  }
+
+  .address-book__actions {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 480px) {
@@ -179,6 +187,11 @@
   .form__actions {
     flex-direction: column-reverse;
     gap: 8px;
+  }
+
+  .address-book__actions,
+  .address-book__action {
+    width: 100%;
   }
 }
 

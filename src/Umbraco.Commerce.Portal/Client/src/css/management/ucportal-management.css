@@ -260,6 +260,70 @@ body {
   border-top: 1px solid #e5e7eb;
 }
 
+.form__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+}
+
+/* Address Book Block */
+.address-book__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 24px 0 12px;
+}
+
+.address-book__empty {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.address-book__list {
+  list-style: none;
+}
+
+.address-book__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+}
+
+.address-book__address {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #1f2937;
+}
+
+.address-book__badge {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.address-book__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.address-book__action {
+  display: inline;
+}
+
 /* Button Block */
 .button {
   padding: 12px 24px;
