@@ -55,6 +55,9 @@ internal class CreateUmbracoCommercePortalNodesTask(
             CreatePortalAuthPage(portalManagementPage, "My Account", "My Account", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalMyAccountPage);
             CreatePortalAuthPage(portalManagementPage, "Order History", "Order History", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderHistoryPage);
             CreatePortalAuthPage(portalManagementPage, "Order Details", "Order Details", UmbracoCommercePortalConstants.ContentTypes.Aliases.PortalOrderDetailsPage);
+
+            // Published by PublishUmbracoCommercePortalNodesTask once public access is set up
+            args.Model.CreatedPortalContainerPageId = portalContainerPage.Id;
         }
 
         scope.Complete();
