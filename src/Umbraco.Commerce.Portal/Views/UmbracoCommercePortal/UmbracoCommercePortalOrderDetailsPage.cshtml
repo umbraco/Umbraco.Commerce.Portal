@@ -19,10 +19,10 @@
     CustomerModel customerModel = order.GetCustomerModel(orderPropertyConfig);
     AddressModel billingAddressModel = order.GetBillingAddressModel(orderPropertyConfig);
     var orderBillingAddress = await order.GetBillingAddressAsync(orderPropertyConfig);
-    billingAddressModel.Country = (await CommerceApi.GetCountryAsync(store.Id, orderBillingAddress.CountryIsoCode)).Name;
+    billingAddressModel.Country = await CommerceApi.GetCountryNameAsync(store.Id, orderBillingAddress);
     AddressModel shippingAddressModel = order.GetShippingAddressModel(orderPropertyConfig);
     var orderShippingAddress = await order.GetShippingAddressAsync(orderPropertyConfig);
-    shippingAddressModel.Country = (await CommerceApi.GetCountryAsync(store.Id, orderBillingAddress.CountryIsoCode)).Name;
+    shippingAddressModel.Country = await CommerceApi.GetCountryNameAsync(store.Id, orderShippingAddress);
 
     bool canCollectBillingInfo = portalContainerPage.Value<bool>("ucpCollectBillingInfo");
     bool canCollectShippingInfo = portalContainerPage.Value<bool>("ucpCollectShippingInfo");

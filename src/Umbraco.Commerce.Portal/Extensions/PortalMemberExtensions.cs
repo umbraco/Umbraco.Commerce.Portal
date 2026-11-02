@@ -6,6 +6,7 @@ namespace Umbraco.Commerce.Portal.Extensions;
 
 public static class PortalMemberExtensions
 {
+    [Obsolete("Portal reads profiles from the Umbraco Commerce customer now. Use PortalCustomerService.GetCurrentAsync instead. Will be removed in v21.0.0")]
     public static AccountModel ToAccountModel(this IMember member)
     {
         ArgumentNullException.ThrowIfNull(member, nameof(member));
@@ -18,6 +19,7 @@ public static class PortalMemberExtensions
         };
     }
 
+    [Obsolete("Billing details live in the customer's address book now. Use PortalCustomerService.GetAddressBookAsync instead. Will be removed in v21.0.0")]
     public static BillingInformationModel ToBillingInformationModel(this IMember member)
     {
         ArgumentNullException.ThrowIfNull(member, nameof(member));

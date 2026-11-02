@@ -2,26 +2,70 @@
 @using Umbraco.Commerce.Portal.Models
 @using Umbraco.Commerce.Portal.Services
 @inject IUmbracoCommerceApi CommerceApi
-@inject PortalMemberService PortalMemberService
+@inject PortalCustomerService PortalCustomerService
 @inherits UmbracoViewPage
 @{
 	Layout = "UmbracoCommercePortalManagementLayout.cshtml";
 
 	var store = Model.GetStore();
 
-	var isLoggedIn = Context.User?.Identity?.IsAuthenticated ?? false;
-
 	var accountModel = new AccountModel();
-	var billingInformationModel = new BillingInformationModel();
 	var changePasswordModel = new ChangePasswordModel();
-	if (isLoggedIn)
+	var addressModel = new AddressBookAddressModel();
+	var addressBook = new AddressBook(Array.Empty<AddressBookEntry>(), Array.Empty<AddressBookEntry>());
+	var isEditingAddress = false;
+
+	var context = await PortalCustomerService.GetCurrentAsync(store.Id);
+	if (context != null)
 	{
-		accountModel = PortalMemberService.Get(Context.User!.Identity!.Name!);
-		billingInformationModel = PortalMemberService.GetBillingInformation(Context.User!.Identity!.Name!);
-		changePasswordModel.MemberKey = accountModel.Id;
+		accountModel.FirstName = context.Customer.FirstName ?? string.Empty;
+		accountModel.LastName = context.Customer.LastName ?? string.Empty;
+		accountModel.Email = context.Customer.Email ?? string.Empty;
+		accountModel.Telephone = context.Customer.Telephone;
+
+		addressBook = await PortalCustomerService.GetAddressBookAsync(store.Id, context.Customer.Id);
+
+		// Only the signed-in customer's own addresses can be opened for editing
+		if (int.TryParse(Context.Request.Query["editAddress"], out var editAddressId))
+		{
+			var editAddress = await PortalCustomerService.GetCustomerAddressAsync(context.Customer.Id, editAddressId);
+			if (editAddress != null)
+			{
+				isEditingAddress = true;
+				addressModel = new AddressBookAddressModel
+				{
+					Id = editAddress.Id,
+					IsBilling = editAddress.IsBilling,
+					AddressLine1 = editAddress.AddressLine1,
+					AddressLine2 = editAddress.AddressLine2,
+					City = editAddress.City,
+					ZipCode = editAddress.ZipCode,
+					CountryId = editAddress.CountryId,
+					RegionId = editAddress.RegionId,
+					IsDefault = editAddress.IsDefault,
+				};
+			}
+		}
 	}
 
-	var countries = await CommerceApi.GetCountriesAsync(store.Id);
+	var countries = (await CommerceApi.GetCountriesAsync(store.Id)).ToList();
+	var regions = (await CommerceApi.GetRegionsAsync(store.Id)).ToList();
+
+	// Keep the posted choice when the address form is shown again with errors
+	string? Attempted(string key, object? fallback)
+		=> ViewContext.ViewData.ModelState.TryGetValue(key, out var entry) && entry.AttemptedValue != null
+			? entry.AttemptedValue
+			: fallback?.ToString();
+
+	var selectedCountryId = Attempted("addressModel.CountryId", addressModel.CountryId);
+	var selectedRegionId = Attempted("addressModel.RegionId", addressModel.RegionId);
+	var selectedIsBilling = Attempted("addressModel.IsBilling", addressModel.IsBilling) ?? "True";
+	var selectedCountryHasRegions = regions.Any(x => x.CountryId.ToString() == selectedCountryId);
+
+	string Localize(UmbracoCommercePortalConstants.Localization.LocalizationEntry entry)
+		=> Umbraco.GetDictionaryValueOrDefault(entry.Key, entry.DefaultValue);
+
+	var myAccountUrl = Model.Url();
 }
 
 @await Html.PartialAsync(
@@ -34,8 +78,6 @@ $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/Umbrac
 	<!-- Personal Information -->
 	@using (Html.BeginUmbracoForm("UpdateAccount", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "form" }))
 	{
-		<input type="hidden" asp-for="@accountModel.Id" />
-
 		<div class="form__section">
 			<h3 class="form__section-title">
 				@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.PersonalInformation.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.PersonalInformation.DefaultValue)
@@ -64,6 +106,15 @@ $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/Umbrac
 					<input type="email" asp-for="@accountModel.Email" class="form__input" />
 				</div>
 			</div>
+
+			<div class="form__row">
+				<div class="form__field form__field--full">
+					<label asp-for="@accountModel.Telephone" class="form__label">
+						@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Telephone)
+					</label>
+					<input type="tel" asp-for="@accountModel.Telephone" class="form__input" />
+				</div>
+			</div>
 		</div>
 
 		@if (Context.Request.HasFormContentType && Context.Request.Form.ContainsKey("update-account-form"))
@@ -76,77 +127,208 @@ $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/Umbrac
 		}
 
 		<div class="form__actions">
-			<button type="submit" class="button button--primary ucp-bg-color" name="update-account-form">Save</button>
+			<button type="submit" class="button button--primary ucp-bg-color" name="update-account-form">@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Save)</button>
 		</div>
 	}
 
 
-	<!-- Billing Information -->
-	@using (Html.BeginUmbracoForm("UpdateBillingInformation", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "form" }))
-	{
+	<!-- Address Book -->
+	<div class="form" id="address-book">
 		<div class="form__section">
 			<h3 class="form__section-title">
-				@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.BillingInformation.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.BillingInformation.DefaultValue)
+				@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.AddressBook)
 			</h3>
+
+			@foreach (var group in new[]
+			{
+				(Title: UmbracoCommercePortalConstants.Localization.AccountEntries.BillingAddresses, Entries: addressBook.BillingAddresses),
+				(Title: UmbracoCommercePortalConstants.Localization.AccountEntries.ShippingAddresses, Entries: addressBook.ShippingAddresses),
+			})
+			{
+				<h4 class="address-book__title">@Localize(group.Title)</h4>
+
+				@if (group.Entries.Count == 0)
+				{
+					<p class="address-book__empty">@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.NoAddresses)</p>
+				}
+				else
+				{
+					<ul class="address-book__list">
+						@foreach (var entry in group.Entries)
+						{
+							var address = entry.Address;
+							<li class="address-book__item">
+								<div class="address-book__address">
+									@if (address.IsDefault)
+									{
+										<span class="address-book__badge ucp-bg-color">@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Default)</span>
+									}
+									<div>@address.AddressLine1</div>
+									@if (!string.IsNullOrWhiteSpace(address.AddressLine2))
+									{
+										<div>@address.AddressLine2</div>
+									}
+									<div>@address.ZipCode @address.City</div>
+									<div>@(string.Join(", ", new[] { entry.RegionName, entry.CountryName }.Where(x => !string.IsNullOrWhiteSpace(x))))</div>
+								</div>
+								<div class="address-book__actions">
+									<a href="@($"{myAccountUrl}?editAddress={address.Id}#address-form")" class="button button--secondary button--small">
+										@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Edit)
+									</a>
+									@if (!address.IsDefault)
+									{
+										using (Html.BeginUmbracoForm("SetDefaultAddress", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "address-book__action" }))
+										{
+											<input type="hidden" name="addressId" value="@address.Id" />
+											<button type="submit" class="button button--secondary button--small" name="address-book-action">
+												@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.SetAsDefault)
+											</button>
+										}
+									}
+									@using (Html.BeginUmbracoForm("DeleteAddress", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "address-book__action", data_confirm = Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.ConfirmDeleteAddress) }))
+									{
+										<input type="hidden" name="addressId" value="@address.Id" />
+										<button type="submit" class="button button--secondary button--small" name="address-book-action">
+											@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Delete)
+										</button>
+									}
+								</div>
+							</li>
+						}
+					</ul>
+				}
+			}
+		</div>
+
+		@if (Context.Request.HasFormContentType && Context.Request.Form.ContainsKey("address-book-action"))
+		{
+			<div class="auth__field">
+				<div class="auth__error">
+					@Html.ValidationSummary()
+				</div>
+			</div>
+		}
+	</div>
+
+	<!-- Add / Edit Address -->
+	@using (Html.BeginUmbracoForm("SaveAddress", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "form", id = "address-form" }))
+	{
+		<input type="hidden" asp-for="@addressModel.Id" />
+
+		<div class="form__section">
+			<h3 class="form__section-title">
+				@Localize(isEditingAddress ? UmbracoCommercePortalConstants.Localization.AccountEntries.EditAddress : UmbracoCommercePortalConstants.Localization.AccountEntries.AddAddress)
+			</h3>
+
+			@if (!isEditingAddress)
+			{
+				<div class="form__row">
+					<div class="form__field form__field--full">
+						<label for="addressIsBilling" class="form__label">
+							@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.AddressType)
+						</label>
+						<select id="addressIsBilling" name="addressModel.IsBilling" class="form__select">
+							@if (string.Equals(selectedIsBilling, "false", StringComparison.OrdinalIgnoreCase))
+							{
+								<option value="true">@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.BillingAddress)</option>
+								<option value="false" selected>@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.ShippingAddress)</option>
+							}
+							else
+							{
+								<option value="true" selected>@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.BillingAddress)</option>
+								<option value="false">@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.ShippingAddress)</option>
+							}
+						</select>
+					</div>
+				</div>
+			}
 
 			<div class="form__row">
 				<div class="form__field form__field--full">
-					<label for="country" class="form__label">
-						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.Country.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.Country.DefaultValue)
+					<label asp-for="@addressModel.AddressLine1" class="form__label">
+						@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.StreetAddress)
 					</label>
-					<select id="country" class="form__select" asp-for="@billingInformationModel.Country">
+					<input type="text" asp-for="@addressModel.AddressLine1" class="form__input" />
+				</div>
+			</div>
+
+			<div class="form__row">
+				<div class="form__field form__field--full">
+					<label asp-for="@addressModel.AddressLine2" class="form__label">
+						@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.AddressLine2)
+					</label>
+					<input type="text" asp-for="@addressModel.AddressLine2" class="form__input" />
+				</div>
+			</div>
+
+			<div class="form__row">
+				<div class="form__field">
+					<label asp-for="@addressModel.City" class="form__label">
+						@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.City)
+					</label>
+					<input type="text" asp-for="@addressModel.City" class="form__input" />
+				</div>
+				<div class="form__field">
+					<label asp-for="@addressModel.ZipCode" class="form__label">
+						@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.ZipCode)
+					</label>
+					<input type="text" asp-for="@addressModel.ZipCode" class="form__input" />
+				</div>
+			</div>
+
+			<div class="form__row">
+				<div class="form__field">
+					<label for="addressCountryId" class="form__label">
+						@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Country)
+					</label>
+					<select id="addressCountryId" name="addressModel.CountryId" class="form__select">
 						<option value=""></option>
 						@foreach (var country in countries)
 						{
-							if (billingInformationModel.Country == country.Code)
+							if (country.Id.ToString() == selectedCountryId)
 							{
-								<option value="@country.Code" selected>
-									@country.Name
-								</option>
-							} else
+								<option value="@country.Id" selected>@country.Name</option>
+							}
+							else
 							{
-								<option value="@country.Code">
-									@country.Name
-								</option>
+								<option value="@country.Id">@country.Name</option>
+							}
+						}
+					</select>
+				</div>
+				<div class="form__field" id="addressRegionField" hidden="@(!selectedCountryHasRegions)">
+					<label for="addressRegionId" class="form__label">
+						@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.State)
+					</label>
+					<select id="addressRegionId" name="addressModel.RegionId" class="form__select">
+						<option value=""></option>
+						@foreach (var region in regions)
+						{
+							if (region.Id.ToString() == selectedRegionId)
+							{
+								<option value="@region.Id" data-country="@region.CountryId" selected>@region.Name</option>
+							}
+							else
+							{
+								<option value="@region.Id" data-country="@region.CountryId">@region.Name</option>
 							}
 						}
 					</select>
 				</div>
 			</div>
 
-			<div class="form__row">
-				<div class="form__field form__field--full">
-					<label asp-for="@billingInformationModel.Street" class="form__label">
-						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.StreetAddress.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.StreetAddress.DefaultValue)
+			@if (!(isEditingAddress && addressModel.IsDefault))
+			{
+				<div class="form__row">
+					<label class="form__checkbox">
+						<input type="checkbox" asp-for="@addressModel.IsDefault" />
+						@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.UseAsDefault)
 					</label>
-					<input type="text" asp-for="@billingInformationModel.Street" class="form__input" />
 				</div>
-			</div>
-
-			<div class="form__row">
-				<div class="form__field">
-					<label asp-for="@billingInformationModel.City" class="form__label">
-						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.City.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.City.DefaultValue)
-					</label>
-					<input type="text" asp-for="@billingInformationModel.City" class="form__input" />
-				</div>
-				<div class="form__field">
-					<label asp-for="@billingInformationModel.State" class="form__label">
-						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.State.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.State.DefaultValue)
-					</label>
-					<input type="text" asp-for="@billingInformationModel.State" class="form__input" />
-				</div>
-				<div class="form__field">
-					<label asp-for="@billingInformationModel.ZipCode" class="form__label">
-						@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.ZipCode.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.ZipCode.DefaultValue)
-					</label>
-					<input type="text" asp-for="@billingInformationModel.ZipCode" class="form__input" />
-				</div>
-			</div>
-
+			}
 		</div>
 
-		@if (Context.Request.HasFormContentType && Context.Request.Form.ContainsKey("update-billing-form"))
+		@if (Context.Request.HasFormContentType && Context.Request.Form.ContainsKey("save-address-form"))
 		{
 			<div class="auth__field">
 				<div class="auth__error">
@@ -156,7 +338,15 @@ $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/Umbrac
 		}
 
 		<div class="form__actions">
-			<button type="submit" class="button button--primary ucp-bg-color" name="update-billing-form">Save</button>
+			@if (isEditingAddress)
+			{
+				<a href="@($"{myAccountUrl}#address-book")" class="button button--secondary">
+					@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Cancel)
+				</a>
+			}
+			<button type="submit" class="button button--primary ucp-bg-color" name="save-address-form">
+				@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Save)
+			</button>
 		</div>
 	}
 
@@ -164,7 +354,6 @@ $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/Umbrac
 	<!-- Change Password -->
 	@using (Html.BeginUmbracoForm("ChangePassword", "UmbracoCommercePortalAccountSurface", FormMethod.Post, new { @class = "form" }))
 	{
-		<input type="hidden" asp-for="@changePasswordModel.MemberKey" />
 		<div class="form__section">
 			<h3 class="form__section-title">
 				@Umbraco.GetDictionaryValueOrDefault(UmbracoCommercePortalConstants.Localization.AccountEntries.ChangePassword.Key, UmbracoCommercePortalConstants.Localization.AccountEntries.ChangePassword.DefaultValue)
@@ -196,10 +385,40 @@ $"{UmbracoCommercePortalConstants.UmbracoCommercePortalViewPath}/Partials/Umbrac
 		}
 
 		<div class="form__actions">
-			<button type="submit" class="button button--primary ucp-bg-color" name="change-password-form">Save</button>
+			<button type="submit" class="button button--primary ucp-bg-color" name="change-password-form">@Localize(UmbracoCommercePortalConstants.Localization.AccountEntries.Save)</button>
 		</div>
 	}
 </div>
+
+<script>
+	(function () {
+		// Show the state / province select only for countries that have regions, listing just that country's regions
+		var country = document.getElementById('addressCountryId');
+		var region = document.getElementById('addressRegionId');
+		var regionField = document.getElementById('addressRegionField');
+		if (country && region && regionField) {
+			var regionOptions = Array.prototype.slice.call(region.querySelectorAll('option[data-country]'));
+			var syncRegions = function () {
+				var selected = region.value;
+				regionOptions.forEach(function (option) { option.remove(); });
+				var matches = regionOptions.filter(function (option) { return option.getAttribute('data-country') === country.value; });
+				matches.forEach(function (option) { region.appendChild(option); });
+				region.value = matches.some(function (option) { return option.value === selected; }) ? selected : '';
+				regionField.hidden = matches.length === 0;
+			};
+			country.addEventListener('change', syncRegions);
+			syncRegions();
+		}
+
+		document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+			form.addEventListener('submit', function (e) {
+				if (!window.confirm(form.getAttribute('data-confirm'))) {
+					e.preventDefault();
+				}
+			});
+		});
+	})();
+</script>
 
 @if (TempData["Success"] != null)
 {

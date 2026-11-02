@@ -26,6 +26,7 @@ internal static class CompositionExtensions
     public static IUmbracoBuilder AddUmbracoCommercePortalMemberServices(this IUmbracoBuilder builder)
     {
         builder.Services.AddScoped<PortalMemberService>();
+        builder.Services.AddScoped<PortalCustomerService>();
         return builder;
     }
 }

@@ -5,6 +5,7 @@ namespace Umbraco.Commerce.Portal.Models;
 
 public class AccountModel
 {
+    [Obsolete("Account actions now act on the signed-in member; this value is ignored. Will be removed in v21.0.0")]
     public Guid Id { get; set; }
 
     [Required]
@@ -16,8 +17,15 @@ public class AccountModel
 
     [Required]
     public string LastName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the customer's phone number.
+    /// </summary>
+    [Phone]
+    public string? Telephone { get; set; }
 }
 
+[Obsolete("Billing details now live in the customer's address book (AddressBookAddressModel). Will be removed in v21.0.0")]
 public class BillingInformationModel
 {
     public Guid Id { get; set; }

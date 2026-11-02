@@ -22,7 +22,7 @@ namespace Umbraco.Commerce.Portal.Web.Controllers;
 public class UmbracoCommercePortalApiController(IUmbracoCommerceApi commerceApi, IContentService contentService)
     : ManagementApiControllerBase
 {
-    [HttpGet("install")]
+    [HttpPost("install")]
     public async Task<object> InstallUmbracoCommercePortal(Guid? siteRootNodeId)
     {
         ArgumentNullException.ThrowIfNull(siteRootNodeId);

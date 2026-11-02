@@ -1,23 +1,18 @@
-@using Umbraco.Cms.Core.Security
 @using Umbraco.Commerce.Portal.Extensions
 @using Umbraco.Commerce.Portal.Models
 @using Umbraco.Commerce.Portal.Services
-@inject PortalMemberService PortalMemberService
-@inject IMemberManager MemberManager
-@inject IUmbracoCommerceApi CommerceApi
+@inject PortalCustomerService PortalCustomerService
 @inherits UmbracoViewPage
 @{
     Layout = "UmbracoCommercePortalManagementLayout.cshtml";
 
     var store = Model.GetStore();
 
-    var accountModel = PortalMemberService.Get(Context.User!.Identity!.Name!);
+    var context = await PortalCustomerService.GetCurrentAsync(store.Id);
 
-    var currentMember = await MemberManager.GetCurrentMemberAsync();
-
-    var orders = currentMember != null
-        ? await CommerceApi.GetFinalizedOrdersForCustomerAsync(store.Id, currentMember.Email)
-        : Enumerable.Empty<OrderReadOnly>();
+    var orders = context != null
+        ? await PortalCustomerService.GetFinalizedOrdersAsync(store.Id, context.Member, context.Customer)
+        : Array.Empty<OrderReadOnly>();
 }
 
 @await Html.PartialAsync(

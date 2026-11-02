@@ -5,6 +5,7 @@ namespace Umbraco.Commerce.Portal.Models;
 
 public class ChangePasswordModel
 {
+    [Obsolete("Account actions now act on the signed-in member; this value is ignored. Will be removed in v21.0.0")]
     public Guid MemberKey { get; set; }
 
     [Required]

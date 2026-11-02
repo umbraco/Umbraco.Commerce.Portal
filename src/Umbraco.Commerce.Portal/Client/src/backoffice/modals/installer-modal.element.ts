@@ -121,7 +121,6 @@ export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
                           </umb-input-content>
                       </umb-property-layout>
                   </uui-box>
-                </uc-stack>
                 <umb-footer-layout slot="footer">
 					        <uui-button
 						        slot="actions"
