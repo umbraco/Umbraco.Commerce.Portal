@@ -321,7 +321,8 @@ body {
 }
 
 .address-book__action {
-  display: inline;
+  display: flex;
+  margin: 0;
 }
 
 /* Button Block */
@@ -363,7 +364,9 @@ body {
 
 .button--small {
   padding: 8px 16px;
+  font-family: inherit;
   font-size: 12px;
+  line-height: 1.25;
 }
 
 /* Orders Block */
