@@ -65,7 +65,7 @@ export default class UcpInstallerConfigModal extends UmbElementMixin(LitElement)
         this.#notificationContext?.peek('positive', {
           data: {
             headline: 'Umbraco Commerce Portal Installed',
-            message: 'Umbraco Commerce Portal successfully installed',
+            message: 'Umbraco Commerce Portal successfully installed. Its pages are unpublished: review their settings, then publish them.',
           },
         });
 

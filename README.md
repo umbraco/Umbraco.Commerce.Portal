@@ -10,6 +10,8 @@ Umbraco Commerce Portal is an add-on package for Umbraco Commerce, providing cus
 
 To install the customer portal, access the `Umbraco Commerce Portal` dashboard from the `Settings` section of the backoffice, and select the root node for the portal nodes to be installed under.
 
+The portal pages are created unpublished. Review their settings, then publish them.
+
 ![install-dashboard](./assets/install-dashboard.png)
 
 ![installation-root-node](./assets/installation-root-node.png)

@@ -38,6 +38,9 @@ export class UcPortalInstallerDashboard extends UmbElementMixin(LitElement) {
                 By clicking the <strong>Install</strong> button below Umbraco Commerce Portal will install all the Data Types,<br />
                 Doc Types and Content nodes needed.
               </p>
+              <p style="margin-bottom: 10px;">
+                The portal pages are created <strong>unpublished</strong>. Review their settings, then publish them.
+              </p>
               <p>
                 If you have installed Umbraco Commerce Portal before, the installer will also perform the relevant upgrades.<br />
                 <br /><strong>NB: Nothing</strong> will be removed as part of an upgrade.
