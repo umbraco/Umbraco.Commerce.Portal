@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using Umbraco.Commerce.Core.Api;
 using Umbraco.Commerce.Core.Models;
 using Umbraco.Commerce.Portal.Models;
 
@@ -43,4 +45,22 @@ public static class CustomerExtensions
         };
     }
 
+    /// <summary>
+    /// Gets the name of the store country for the address's country code, or <c>null</c> when the
+    /// address is missing, has no country, or the country isn't in the store.
+    /// </summary>
+    /// <param name="commerceApi">The Commerce API.</param>
+    /// <param name="storeId">The store the country belongs to.</param>
+    /// <param name="address">The address, such as an order's billing or shipping address.</param>
+    /// <returns>The country name, or <c>null</c>.</returns>
+    internal static async Task<string?> GetCountryNameAsync(this IUmbracoCommerceApi commerceApi, Guid storeId, Address? address)
+    {
+        if (string.IsNullOrWhiteSpace(address?.CountryIsoCode))
+        {
+            return null;
+        }
+
+        CountryReadOnly? country = await commerceApi.GetCountryAsync(storeId, address.CountryIsoCode);
+        return country?.Name;
+    }
 }
